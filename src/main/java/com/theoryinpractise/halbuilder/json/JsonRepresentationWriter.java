@@ -23,19 +23,12 @@ import java.util.Set;
 import static com.theoryinpractise.halbuilder.impl.api.Support.*;
 
 
-public class JsonRepresentationWriter<T> implements RepresentationWriter<T> {
+public class JsonRepresentationWriter implements RepresentationWriter<String> {
 
     public void write(ReadableRepresentation representation, Set<URI> flags, Writer writer) {
 
-        JsonFactory f = new JsonFactory();
-        f.setCodec(new ObjectMapper());
-        f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-
         try {
-            JsonGenerator g = f.createJsonGenerator(writer);
-            if (flags.contains(RepresentationFactory.PRETTY_PRINT)) {
-                g.setPrettyPrinter(new DefaultPrettyPrinter());
-            }
+            JsonGenerator g = getJsonGenerator(flags, writer);
             g.writeStartObject();
             renderJson(g, representation, false);
             g.writeEndObject();
@@ -44,6 +37,21 @@ public class JsonRepresentationWriter<T> implements RepresentationWriter<T> {
             throw new RepresentationException(e);
         }
 
+    }
+
+    protected JsonGenerator getJsonGenerator(Set<URI> flags, Writer writer) throws IOException {
+        JsonGenerator g = getJsonFactory().createJsonGenerator(writer);
+        if (flags.contains(RepresentationFactory.PRETTY_PRINT)) {
+            g.setPrettyPrinter(new DefaultPrettyPrinter());
+        }
+        return g;
+    }
+
+    protected JsonFactory getJsonFactory() {
+        JsonFactory f = new JsonFactory();
+        f.setCodec(new ObjectMapper());
+        f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        return f;
     }
 
     private void renderJson(JsonGenerator g, ReadableRepresentation representation, boolean embedded) throws IOException {
