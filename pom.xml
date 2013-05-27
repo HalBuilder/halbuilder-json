@@ -54,6 +54,10 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+            </plugin>
+            <plugin>
                 <artifactId>maven-remote-resources-plugin</artifactId>
                 <version>1.4</version>
                 <executions>
@@ -73,7 +77,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4.1</version>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
                     <goals>deploy</goals>
