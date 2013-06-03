@@ -64,7 +64,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             // Include namespaces as links when not embedded
             if (!embedded) {
                 for (Map.Entry<String, String> entry : representation.getNamespaces().entrySet()) {
-                    links.add(new Link(null, CURIE, entry.getValue(), entry.getKey(), null, null, null));
+                    links.add(new Link(null, CURIES, entry.getValue(), entry.getKey(), null, null, null));
                 }
             }
 

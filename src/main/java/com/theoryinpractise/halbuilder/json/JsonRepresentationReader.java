@@ -13,7 +13,7 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.theoryinpractise.halbuilder.impl.api.Support.CURIE;
+import static com.theoryinpractise.halbuilder.impl.api.Support.CURIES;
 import static com.theoryinpractise.halbuilder.impl.api.Support.EMBEDDED;
 import static com.theoryinpractise.halbuilder.impl.api.Support.HREF;
 import static com.theoryinpractise.halbuilder.impl.api.Support.HREFLANG;
@@ -57,8 +57,8 @@ public class JsonRepresentationReader implements RepresentationReader {
     private void readNamespaces(MutableRepresentation resource, JsonNode rootNode) {
         if (rootNode.has(LINKS)) {
             JsonNode linksNode = rootNode.get(LINKS);
-            if (linksNode.has(CURIE)) {
-                JsonNode curieNode = linksNode.get(CURIE);
+            if (linksNode.has(CURIES)) {
+                JsonNode curieNode = linksNode.get(CURIES);
 
                 if (curieNode.isArray()) {
                     Iterator<JsonNode> values = curieNode.elements();
@@ -78,7 +78,7 @@ public class JsonRepresentationReader implements RepresentationReader {
             Iterator<Map.Entry<String, JsonNode>> fields = rootNode.get(LINKS).fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> keyNode = fields.next();
-                if (!CURIE.equals((keyNode.getKey()))) {
+                if (!CURIES.equals((keyNode.getKey()))) {
                     if (keyNode.getValue().isArray()) {
                         Iterator<JsonNode> values = keyNode.getValue().elements();
                         while (values.hasNext()) {

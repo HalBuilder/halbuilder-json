@@ -27,8 +27,8 @@ public class RenderingTest {
     private static final String BASE_URL = ROOT_URL + "/api/";
 
     private RepresentationFactory representationFactory = new JsonRepresentationFactory()
-            .withNamespace("ns", ROOT_URL + "/apidocs/accounts")
-            .withNamespace("role", ROOT_URL + "/apidocs/roles")
+            .withNamespace("ns", ROOT_URL + "/apidocs/ns/{rel}")
+            .withNamespace("role", ROOT_URL + "/apidocs/role/{rel}")
             .withFlag(RepresentationFactory.PRETTY_PRINT);
 
     private String exampleJson;
@@ -302,7 +302,7 @@ public class RenderingTest {
 
         String href = "customer/123456";
         ReadableRepresentation party = newBaseResource(href)
-                .withNamespace("phone", "https://example.com/apidocs/phones")
+                .withNamespace("phone", "https://example.com/apidocs/phone/{rel}")
                 .withLink("ns:users", BASE_URL + href + "?users")
                 .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
                 .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
