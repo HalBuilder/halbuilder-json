@@ -1,14 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.theoryinpractise</groupId>
     <artifactId>halbuilder-json</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>halbuilder-json</name>
-    <description>Siren serializer/deserializer extension to the HalBuilder Library</description>
+    <description>HAL+JSON serializer/deserializer extension to the HalBuilder Library</description>
     <url>http://gotohal.net</url>
 
     <properties>
@@ -17,9 +16,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git@github.com:HalBuilder/halbuilder-siren.git</connection>
-        <developerConnection>scm:git:git@github.com:HalBuilder/halbuilder-siren.git</developerConnection>
-        <url>http://github.com/HalBuilder/halbuilder-siren</url>
+        <connection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</connection>
+        <developerConnection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</developerConnection>
+        <url>http://github.com/HalBuilder/halbuilder-json</url>
         <tag>HEAD</tag>
     </scm>
 
