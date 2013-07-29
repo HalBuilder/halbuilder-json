@@ -1,5 +1,6 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -30,7 +31,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
         try {
             JsonGenerator g = getJsonGenerator(flags, writer);
             g.writeStartObject();
-            renderJson(g, representation, false);
+            renderJson(flags, g, representation, false);
             g.writeEndObject();
             g.close();
         } catch (IOException e) {
@@ -40,21 +41,25 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
     }
 
     protected JsonGenerator getJsonGenerator(Set<URI> flags, Writer writer) throws IOException {
-        JsonGenerator g = getJsonFactory().createJsonGenerator(writer);
+        JsonGenerator g = getJsonFactory(flags).createJsonGenerator(writer);
         if (flags.contains(RepresentationFactory.PRETTY_PRINT)) {
             g.setPrettyPrinter(new DefaultPrettyPrinter());
         }
         return g;
     }
 
-    protected JsonFactory getJsonFactory() {
+    protected JsonFactory getJsonFactory(Set<URI> flags) {
         JsonFactory f = new JsonFactory();
-        f.setCodec(new ObjectMapper());
+        ObjectMapper codec = new ObjectMapper();
+        if (flags.contains(RepresentationFactory.STRIP_NULLS)) {
+            codec.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        }
+        f.setCodec(codec);
         f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
         return f;
     }
 
-    private void renderJson(JsonGenerator g, ReadableRepresentation representation, boolean embedded) throws IOException {
+    private void renderJson(Set<URI> flags, JsonGenerator g, ReadableRepresentation representation, boolean embedded) throws IOException {
 
         if (!representation.getCanonicalLinks().isEmpty() || (!embedded && !representation.getNamespaces().isEmpty())) {
             g.writeObjectFieldStart(LINKS);
@@ -101,7 +106,9 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             if (entry.getValue() != null) {
                 g.writeObjectField(entry.getKey(), entry.getValue());
             } else {
-                g.writeNullField(entry.getKey());
+                if (!flags.contains(RepresentationFactory.STRIP_NULLS)) {
+                    g.writeNullField(entry.getKey());
+                }
             }
         }
 
@@ -114,13 +121,13 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
                 if (resourceEntry.getValue().size() == 1) {
                     g.writeObjectFieldStart(resourceEntry.getKey());
                     ReadableRepresentation subRepresentation = resourceEntry.getValue().iterator().next();
-                    renderJson(g, subRepresentation, true);
+                    renderJson(flags, g, subRepresentation, true);
                     g.writeEndObject();
                 } else {
                     g.writeArrayFieldStart(resourceEntry.getKey());
                     for (ReadableRepresentation subRepresentation : resourceEntry.getValue()) {
                         g.writeStartObject();
-                        renderJson(g, subRepresentation, true);
+                        renderJson(flags, g, subRepresentation, true);
                         g.writeEndObject();
                     }
                     g.writeEndArray();
