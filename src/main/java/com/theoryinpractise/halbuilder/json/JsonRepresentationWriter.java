@@ -84,7 +84,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             });
 
             for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
-                if (linkEntry.getValue().size() == 1) {
+                if (linkEntry.getValue().size() == 1 && !linkEntry.getKey().equals(CURIES)) {
                     Link link = linkEntry.getValue().iterator().next();
                     g.writeObjectFieldStart(linkEntry.getKey());
                     writeJsonLinkContent(g, link);
