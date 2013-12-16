@@ -41,6 +41,8 @@ public class RenderingTest {
     private String exampleWithMultipleNestedSubresourcesJson;
     private String exampleWithTemplateJson;
     private String exampleWithArray;
+    private String exampleWithSingleElemArray;
+    private String exampleWithSingleElemArrayValue;
 
     @BeforeMethod
     public void setup() throws IOException {
@@ -63,6 +65,10 @@ public class RenderingTest {
         exampleWithTemplateJson = Resources.toString(RenderingTest.class.getResource("/exampleWithTemplate.json"), Charsets.UTF_8)
                 .trim();
         exampleWithArray = Resources.toString(RenderingTest.class.getResource("/exampleWithArray.json"), Charsets.UTF_8)
+                .trim();
+        exampleWithSingleElemArray = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArray.json"), Charsets.UTF_8)
+                .trim();
+        exampleWithSingleElemArrayValue = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArrayValue.json"), Charsets.UTF_8)
                 .trim();
     }
 
@@ -327,6 +333,35 @@ public class RenderingTest {
 
     }
 
+    @Test
+    public void testHalWithSingleElemArray() {
+
+        String representation = new JsonRepresentationFactory()
+                .withFlag(RepresentationFactory.PRETTY_PRINT)
+                .withFlag(RepresentationFactory.SINGLE_ELEM_ARRAYS)
+                .newRepresentation()
+                .withProperty("name", "Example Resource")
+                .withProperty("array", ImmutableList.of("one"))
+                .toString(RepresentationFactory.HAL_JSON);
+
+        assertThat(representation).isEqualTo(exampleWithSingleElemArray);
+
+    }   
+
+    @Test
+    public void testHalWithSingleElemArrayValue() {
+
+        String representation = new JsonRepresentationFactory()
+                .withFlag(RepresentationFactory.PRETTY_PRINT)
+                .newRepresentation()
+                .withProperty("name", "Example Resource")
+                .withProperty("array", ImmutableList.of("one"))
+                .toString(RepresentationFactory.HAL_JSON);
+
+        assertThat(representation).isEqualTo(exampleWithSingleElemArrayValue);
+
+    }   
+    
     public static class Phone {
         private final Integer id;
 
