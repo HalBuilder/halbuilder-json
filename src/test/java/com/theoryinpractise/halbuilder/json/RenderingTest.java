@@ -1,6 +1,8 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.damnhandy.uri.template.MalformedUriTemplateException;
 import com.damnhandy.uri.template.UriTemplate;
+import com.damnhandy.uri.template.VariableExpansionException;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -41,6 +43,8 @@ public class RenderingTest {
     private String exampleWithMultipleNestedSubresourcesJson;
     private String exampleWithTemplateJson;
     private String exampleWithArray;
+    private String exampleWithSingleElemArray;
+    private String exampleWithSingleElemArrayValue;
 
     @BeforeMethod
     public void setup() throws IOException {
@@ -63,6 +67,10 @@ public class RenderingTest {
         exampleWithTemplateJson = Resources.toString(RenderingTest.class.getResource("/exampleWithTemplate.json"), Charsets.UTF_8)
                 .trim();
         exampleWithArray = Resources.toString(RenderingTest.class.getResource("/exampleWithArray.json"), Charsets.UTF_8)
+                .trim();
+        exampleWithSingleElemArray = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArray.json"), Charsets.UTF_8)
+                .trim();
+        exampleWithSingleElemArrayValue = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArrayValue.json"), Charsets.UTF_8)
                 .trim();
     }
 
@@ -238,7 +246,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testLinkWithDamnHandyUriTemplate() {
+    public void testLinkWithDamnHandyUriTemplate() throws MalformedUriTemplateException, VariableExpansionException {
 
         Phone phone = new Phone(1234, "phone-123");
 
@@ -255,7 +263,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testNullPropertyHal() throws URISyntaxException {
+    public void testNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
 
         String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
@@ -273,7 +281,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testLiteralNullPropertyHal() throws URISyntaxException {
+    public void testLiteralNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
         String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
         ReadableRepresentation party = newBaseResource(new URI(path))
@@ -324,6 +332,35 @@ public class RenderingTest {
                 .toString(RepresentationFactory.HAL_JSON);
 
         assertThat(representation).isEqualTo(exampleWithArray);
+
+    }
+
+    @Test
+    public void testHalWithSingleElemArray() {
+
+        String representation = new JsonRepresentationFactory()
+                .withFlag(RepresentationFactory.PRETTY_PRINT)
+                .withFlag(RepresentationFactory.SINGLE_ELEM_ARRAYS)
+                .newRepresentation()
+                .withProperty("name", "Example Resource")
+                .withProperty("array", ImmutableList.of("one"))
+                .toString(RepresentationFactory.HAL_JSON);
+
+        assertThat(representation).isEqualTo(exampleWithSingleElemArray);
+
+    }
+
+    @Test
+    public void testHalWithSingleElemArrayValue() {
+
+        String representation = new JsonRepresentationFactory()
+                .withFlag(RepresentationFactory.PRETTY_PRINT)
+                .newRepresentation()
+                .withProperty("name", "Example Resource")
+                .withProperty("array", ImmutableList.of("one"))
+                .toString(RepresentationFactory.HAL_JSON);
+
+        assertThat(representation).isEqualTo(exampleWithSingleElemArrayValue);
 
     }
 
