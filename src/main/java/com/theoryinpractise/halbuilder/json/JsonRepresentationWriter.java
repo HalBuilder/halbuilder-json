@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -54,6 +55,10 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
         if (flags.contains(RepresentationFactory.STRIP_NULLS)) {
             codec.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         }
+        //if SINGLE_ELEM_ARRAYS is set, write arrays with one element as an array
+        //rather than a single value.
+        codec.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, 
+                        !flags.contains(RepresentationFactory.SINGLE_ELEM_ARRAYS));
         f.setCodec(codec);
         f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
         return f;

@@ -62,6 +62,8 @@ public class ResourceReaderTest {
         assertThat(representation.getCanonicalLinks()).hasSize(3);
         assertThat(representation.getResources()).hasSize(0);
         assertThat(representation.getResourcesByRel("role:admin")).hasSize(0);
+        assertThat(representation.getLinksByRel("ns:users")).hasSize(1);
+        assertThat(representation.getLinkByRel("ns:users")).isNotNull();
     }
 
     @Test(dataProvider = "provideResourcesWithNulls")
