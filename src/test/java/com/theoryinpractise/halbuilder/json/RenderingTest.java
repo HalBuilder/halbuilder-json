@@ -1,6 +1,8 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.damnhandy.uri.template.MalformedUriTemplateException;
 import com.damnhandy.uri.template.UriTemplate;
+import com.damnhandy.uri.template.VariableExpansionException;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -244,7 +246,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testLinkWithDamnHandyUriTemplate() {
+    public void testLinkWithDamnHandyUriTemplate() throws MalformedUriTemplateException, VariableExpansionException {
 
         Phone phone = new Phone(1234, "phone-123");
 
@@ -261,7 +263,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testNullPropertyHal() throws URISyntaxException {
+    public void testNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
 
         String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
@@ -279,7 +281,7 @@ public class RenderingTest {
     }
 
     @Test
-    public void testLiteralNullPropertyHal() throws URISyntaxException {
+    public void testLiteralNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
         String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
         ReadableRepresentation party = newBaseResource(new URI(path))
@@ -346,7 +348,7 @@ public class RenderingTest {
 
         assertThat(representation).isEqualTo(exampleWithSingleElemArray);
 
-    }   
+    }
 
     @Test
     public void testHalWithSingleElemArrayValue() {
@@ -360,8 +362,8 @@ public class RenderingTest {
 
         assertThat(representation).isEqualTo(exampleWithSingleElemArrayValue);
 
-    }   
-    
+    }
+
     public static class Phone {
         private final Integer id;
 
