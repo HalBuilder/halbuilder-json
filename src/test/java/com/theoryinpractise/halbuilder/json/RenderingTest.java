@@ -34,6 +34,7 @@ public class RenderingTest {
             .withFlag(RepresentationFactory.PRETTY_PRINT);
 
     private String exampleJson;
+    private String exampleSingleElemArrayLinksJson;
     private String exampleJsonWithoutHref;
     private String exampleWithSubresourceJson;
     private String exampleWithSubresourceLinkingToItselfJson;
@@ -51,6 +52,8 @@ public class RenderingTest {
         exampleJsonWithoutHref = Resources.toString(RenderingTest.class.getResource("/exampleWithoutHref.json"), Charsets.UTF_8)
                 .trim();
         exampleJson = Resources.toString(RenderingTest.class.getResource("/example.json"), Charsets.UTF_8)
+                .trim();
+        exampleSingleElemArrayLinksJson = Resources.toString(RenderingTest.class.getResource("/exampleSingleElemArrayLinks.json"), Charsets.UTF_8)
                 .trim();
         exampleWithSubresourceJson = Resources.toString(RenderingTest.class.getResource("/exampleWithSubresource.json"), Charsets.UTF_8)
                 .trim();
@@ -332,6 +335,22 @@ public class RenderingTest {
                 .toString(RepresentationFactory.HAL_JSON);
 
         assertThat(representation).isEqualTo(exampleWithArray);
+
+    }
+
+    @Test
+    public void testHalWithSingleElemArrayLinks() {
+        RepresentationFactory rf = new JsonRepresentationFactory()
+                .withNamespace("ns", ROOT_URL + "/apidocs/ns/{rel}")
+                .withFlag(RepresentationFactory.PRETTY_PRINT)
+                .withFlag(RepresentationFactory.SINGLE_ELEM_ARRAYS);
+
+        String href = "customer/123456";
+        ReadableRepresentation party = newBaseResource(rf.newRepresentation(BASE_URL + href))
+                .withLink("ns:users", BASE_URL + href + "?users")
+                .withBean(new Customer(123456, "Example Resource", 33));
+
+        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleSingleElemArrayLinksJson);
 
     }
 
