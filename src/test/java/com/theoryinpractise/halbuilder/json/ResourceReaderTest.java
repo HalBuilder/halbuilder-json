@@ -1,5 +1,7 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.theoryinpractise.halbuilder.api.Link;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
@@ -49,6 +51,20 @@ public class ResourceReaderTest {
     public Object[][] provideResourceWithUnderscoredProperty() {
         return new Object[][]{
                 {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))},
+        };
+    }
+
+    @DataProvider
+    public Object[][] provideResourceWithArrayProperty() {
+        return new Object[][]{
+                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithArrayProperty.json")))},
+        };
+    }
+
+    @DataProvider
+    public Object[][] provideResourceWithNestedProperty() {
+        return new Object[][]{
+                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNestedProperty.json")))},
         };
     }
 
@@ -103,6 +119,16 @@ public class ResourceReaderTest {
     @Test(dataProvider = "provideResourceWithUnderscoredProperty")
     public void testResourceWithUnderscoredProperty(ReadableRepresentation representation) {
         assertThat(representation.getValue("_name")).isEqualTo("Example Resource");
+    }
+
+    @Test(dataProvider = "provideResourceWithArrayProperty")
+    public void testResourceWithArrayProperty(ReadableRepresentation representation) {
+        assertThat(representation.getValue("array")).isEqualTo(ImmutableList.of("a", "b"));
+    }
+
+    @Test(dataProvider = "provideResourceWithNestedProperty")
+    public void testResourceWithNestedProperty(ReadableRepresentation representation) {
+        assertThat(representation.getValue("nested")).isEqualTo(new ImmutableMap.Builder<String, Object>().put("text", "abc").put("num", 1).put("bool", true).build());
     }
 
     @Test(expectedExceptions = RepresentationException.class)
