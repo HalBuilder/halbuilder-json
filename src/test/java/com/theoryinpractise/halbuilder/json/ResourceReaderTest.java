@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 
+import static com.theoryinpractise.halbuilder.api.RepresentationFactory.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ResourceReaderTest {
@@ -20,35 +21,35 @@ public class ResourceReaderTest {
     @DataProvider
     public Object[][] provideResources() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourcesWithNulls() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideSubResources() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourcesWithouHref() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourceWithUnderscoredProperty() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))},
         };
     }
 
@@ -107,12 +108,12 @@ public class ResourceReaderTest {
 
     @Test(expectedExceptions = RepresentationException.class)
     public void testUnknownFormat() {
-        representationFactory.readRepresentation(new StringReader("!!!"));
+        representationFactory.readRepresentation(HAL_JSON, new StringReader("!!!"));
     }
 
     @Test(expectedExceptions = RepresentationException.class)
     public void testNullReader() {
-        representationFactory.readRepresentation((Reader) null);
+        representationFactory.readRepresentation(HAL_JSON, (Reader) null);
     }
 
 }
