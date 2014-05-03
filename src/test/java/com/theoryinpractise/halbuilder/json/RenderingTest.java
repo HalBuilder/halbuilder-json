@@ -137,7 +137,9 @@ public class RenderingTest {
                 .withProperty("expired", Boolean.FALSE);
 
         assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleJson);
+        assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                  RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleJson);
 
     }
 
@@ -157,7 +159,9 @@ public class RenderingTest {
                     }
                 });
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleJson);
 
     }
 
@@ -170,7 +174,9 @@ public class RenderingTest {
                 .withLink("ns:users", BASE_URL + href + "?users")
                 .withBean(new Customer(123456, "Example Resource", 33));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleJson);
 
     }
 
@@ -182,7 +188,9 @@ public class RenderingTest {
                 .withLink("ns:users", BASE_URL + href + "?users")
                 .withFields(new OtherCustomer(123456, "Example Resource", 33));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleJson);
 
     }
 
@@ -200,7 +208,9 @@ public class RenderingTest {
                         .withProperty("age", 32)
                         .withProperty("optional", true));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithSubresourceJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithSubresourceJson);
 
     }
 
@@ -219,7 +229,9 @@ public class RenderingTest {
                         .withProperty("age", 32)
                         .withProperty("optional", true));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithSubresourceLinkingToItselfJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithSubresourceLinkingToItselfJson);
 
     }
 
@@ -231,7 +243,9 @@ public class RenderingTest {
                 .withLink("ns:users", BASE_URL + href + "?users")
                 .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithSubresourceJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                ImmutableSet.of(RepresentationFactory.COALESCE_ARRAYS)))
+            .isEqualTo(exampleWithSubresourceJson);
 
     }
 
@@ -244,7 +258,9 @@ public class RenderingTest {
                 .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
                 .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithMultipleSubresourcesJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithMultipleSubresourcesJson);
 
     }
 
@@ -280,7 +296,9 @@ public class RenderingTest {
                 .withProperty("nullprop", null);
 
         assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithNullPropertyJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithNullPropertyJson);
     }
 
     @Test
@@ -297,7 +315,9 @@ public class RenderingTest {
                 .withProperty("nullval", "null");
 
         assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithLiteralNullPropertyJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithLiteralNullPropertyJson);
     }
 
     @Test
@@ -305,7 +325,9 @@ public class RenderingTest {
         ReadableRepresentation party = newBaseResource("customer")
                 .withLink("ns:query", ROOT_URL + "/api/customer/search{?queryParam}");
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithTemplateJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithTemplateJson);
     }
 
     @Test
@@ -321,7 +343,9 @@ public class RenderingTest {
         MutableRepresentation mutableRepresentation = (MutableRepresentation) Iterables.getFirst(party.getResources(), null).getValue();
         mutableRepresentation.withBeanBasedRepresentation("phone:cell", ROOT_URL + "/phone/1", new Phone(1, "555-666-7890"));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleWithMultipleNestedSubresourcesJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithMultipleNestedSubresourcesJson);
     }
 
     @Test
@@ -342,15 +366,14 @@ public class RenderingTest {
     public void testHalWithSingleElemArrayLinks() {
         RepresentationFactory rf = new JsonRepresentationFactory()
                 .withNamespace("ns", ROOT_URL + "/apidocs/ns/{rel}")
-                .withFlag(RepresentationFactory.PRETTY_PRINT)
-                .withFlag(RepresentationFactory.SINGLE_ELEM_ARRAYS);
+                .withFlag(RepresentationFactory.PRETTY_PRINT);
 
-        String href = "customer/123456";
+      String href = "customer/123456";
         ReadableRepresentation party = newBaseResource(rf.newRepresentation(BASE_URL + href))
                 .withLink("ns:users", BASE_URL + href + "?users")
                 .withBean(new Customer(123456, "Example Resource", 33));
 
-        assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleSingleElemArrayLinksJson);
+      assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleSingleElemArrayLinksJson);
 
     }
 
@@ -359,27 +382,12 @@ public class RenderingTest {
 
         String representation = new JsonRepresentationFactory()
                 .withFlag(RepresentationFactory.PRETTY_PRINT)
-                .withFlag(RepresentationFactory.SINGLE_ELEM_ARRAYS)
                 .newRepresentation()
                 .withProperty("name", "Example Resource")
                 .withProperty("array", ImmutableList.of("one"))
                 .toString(RepresentationFactory.HAL_JSON);
 
         assertThat(representation).isEqualTo(exampleWithSingleElemArray);
-
-    }
-
-    @Test
-    public void testHalWithSingleElemArrayValue() {
-
-        String representation = new JsonRepresentationFactory()
-                .withFlag(RepresentationFactory.PRETTY_PRINT)
-                .newRepresentation()
-                .withProperty("name", "Example Resource")
-                .withProperty("array", ImmutableList.of("one"))
-                .toString(RepresentationFactory.HAL_JSON);
-
-        assertThat(representation).isEqualTo(exampleWithSingleElemArrayValue);
 
     }
 
