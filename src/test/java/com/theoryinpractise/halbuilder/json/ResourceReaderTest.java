@@ -1,5 +1,6 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.theoryinpractise.halbuilder.api.ContentRepresentation;
 import com.theoryinpractise.halbuilder.api.Link;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
@@ -10,7 +11,12 @@ import org.testng.annotations.Test;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
 
+import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
+import static org.apache.commons.jxpath.JXPathContext.newContext;
+import static org.boon.Maps.idxStr;
+import static org.boon.json.JsonFactory.fromJson;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ResourceReaderTest {
@@ -20,35 +26,35 @@ public class ResourceReaderTest {
     @DataProvider
     public Object[][] provideResources() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourcesWithNulls() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideSubResources() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourcesWithouHref() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))},
         };
     }
 
     @DataProvider
     public Object[][] provideResourceWithUnderscoredProperty() {
         return new Object[][]{
-                {representationFactory.readRepresentation(new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))},
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))},
         };
     }
 
@@ -107,12 +113,25 @@ public class ResourceReaderTest {
 
     @Test(expectedExceptions = RepresentationException.class)
     public void testUnknownFormat() {
-        representationFactory.readRepresentation(new StringReader("!!!"));
+        representationFactory.readRepresentation(HAL_JSON, new StringReader("!!!"));
     }
 
     @Test(expectedExceptions = RepresentationException.class)
     public void testNullReader() {
-        representationFactory.readRepresentation((Reader) null);
+        representationFactory.readRepresentation(HAL_JSON, (Reader) null);
     }
+
+
+  @Test
+  public void testContentExtraction() {
+
+    ContentRepresentation rep = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")));
+    assertThat(rep.getContent()).isNotEmpty();
+    assertThat(idxStr(fromJson(rep.getContent(), Map.class), "name")).isEqualTo("Example Resource");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("name")).isEqualTo("Example Resource");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/name")).isEqualTo("ns");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/href")).isEqualTo("https://example.com/apidocs/ns/{rel}");
+
+  }
 
 }
