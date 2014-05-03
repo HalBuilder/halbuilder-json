@@ -45,7 +45,6 @@ public class RenderingTest {
     private String exampleWithTemplateJson;
     private String exampleWithArray;
     private String exampleWithSingleElemArray;
-    private String exampleWithSingleElemArrayValue;
 
     @BeforeMethod
     public void setup() throws IOException {
@@ -72,8 +71,6 @@ public class RenderingTest {
         exampleWithArray = Resources.toString(RenderingTest.class.getResource("/exampleWithArray.json"), Charsets.UTF_8)
                 .trim();
         exampleWithSingleElemArray = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArray.json"), Charsets.UTF_8)
-                .trim();
-        exampleWithSingleElemArrayValue = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArrayValue.json"), Charsets.UTF_8)
                 .trim();
     }
 
