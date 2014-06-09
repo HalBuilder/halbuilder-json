@@ -13,7 +13,9 @@ import com.theoryinpractise.halbuilder.impl.representations.ContentBasedRepresen
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static com.theoryinpractise.halbuilder.impl.api.Support.CURIES;
@@ -115,13 +117,20 @@ public class JsonRepresentationReader implements RepresentationReader {
   }
 
   private void readProperties(MutableRepresentation resource, JsonNode rootNode) {
-
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
       String fieldName = fieldNames.next();
       if (!Support.RESERVED_JSON_PROPERTIES.contains(fieldName)) {
         JsonNode field = rootNode.get(fieldName);
-        resource.withProperty(fieldName, field.isNull() ? null : field.asText());
+        if(field.isArray()) {
+            List<Object> arrayValues = new ArrayList<Object>(field.size());
+            for(JsonNode arrayValue : field) {
+                arrayValues.add(readResource(arrayValue));
+            }
+            resource.withProperty(fieldName, arrayValues);
+        } else {
+            resource.withProperty(fieldName, field.isNull() ? null : field.asText());
+        }
       }
     }
 
