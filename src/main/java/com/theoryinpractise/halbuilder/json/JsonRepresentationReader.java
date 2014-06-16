@@ -115,7 +115,8 @@ public class JsonRepresentationReader implements RepresentationReader {
         while (fieldNames.hasNext()) {
             String fieldName = fieldNames.next();
             if (!Support.RESERVED_JSON_PROPERTIES.contains(fieldName)) {
-                JsonNode field = rootNode.get(fieldName);
+                JsonNode field = rootNode.get(fieldName);  
+                
                 resource.withProperty(fieldName, field.isNull() ? null : ( !field.isContainerNode() ? field.asText() : (ReadableRepresentation) readResource( field)));
             }
         }
