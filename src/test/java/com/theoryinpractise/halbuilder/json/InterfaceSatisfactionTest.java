@@ -1,14 +1,15 @@
 package com.theoryinpractise.halbuilder.json;
 
-import com.theoryinpractise.halbuilder.api.Contract;
-import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
-import com.theoryinpractise.halbuilder.api.RepresentationException;
-import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import com.theoryinpractise.halbuilder.api.*;
 import com.theoryinpractise.halbuilder.impl.bytecode.InterfaceContract;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -26,6 +27,8 @@ public class InterfaceSatisfactionTest {
     Integer getId();
 
     String getName();
+
+    List<Link> getLinks();
   }
 
   public static interface INamed {
@@ -42,6 +45,24 @@ public class InterfaceSatisfactionTest {
 
   public static interface INullprop {
     String nullprop();
+  }
+
+  public static interface INothing {
+      Map<String, Collection<ReadableRepresentation>> getEmbedded();
+  }
+
+  public static interface IPersonWithChild {
+    Integer getAge();
+
+    Boolean getExpired();
+
+    Integer getId();
+
+    String getName();
+
+    List<Link> getLinks();
+
+    ArrayList<IPerson> getChildren();
   }
 
   @DataProvider
@@ -136,5 +157,25 @@ public class InterfaceSatisfactionTest {
     assertThat(representation.toClass(INullprop.class).nullprop() == null);
   }
 
+  @Test
+  public void testGetLinks() {
+      ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
+      IPerson person = representation.toClass(IPerson.class);
+      assertThat(person.getLinks()).isNotEmpty();
+  }
 
+  @Test
+  public void testGetEmbedded() {
+      ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithSubresource.json")));
+      INothing person = representation.toClass(INothing.class);
+      assertThat(person.getEmbedded()).isNotEmpty();
+  }
+
+  @Test
+  public void testNestedObjectGraph() {
+    ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNestedObjects.json")));
+    IPersonWithChild person = representation.toClass(IPersonWithChild.class);
+    assertThat(person.getChildren()).isNotEmpty();
+    assertThat(person.getChildren().get(0)).isNotNull();
+  }
 }
