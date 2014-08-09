@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Map;
 
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
 import static org.apache.commons.jxpath.JXPathContext.newContext;
+import static org.boon.Lists.idx;
 import static org.boon.Maps.idxStr;
 import static org.boon.json.JsonFactory.fromJson;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -143,7 +145,40 @@ public class ResourceReaderTest {
     assertThat(map).isNotNull();
     assertThat(map.get("age")).isEqualTo(12);
 
+    List<Map> list = (List) rep.getValue("children");
+    assertThat(list).hasSize(2);
+    assertThat(idx(list, 0).get("age")).isEqualTo(12);
+
     assertThat(rep.getContent()).isNotEmpty();
+
+    // These tests should actually be in the core
+    Map childMap =  rep.toClass(Family.class).child();
+    assertThat(childMap.get("age")).isEqualTo(12);
+
+    List<Map> childList = rep.toClass(Family.class).children();
+    assertThat(idx(childList, 0).get("age")).isEqualTo(12);
+
+    Child child =  rep.toClass(Family2.class).child();
+    assertThat(child.age()).isEqualTo(12);
+
+    List<Child> childList2 = rep.toClass(Family2.class).children();
+    assertThat(idx(childList2, 0).age()).isEqualTo(12);
+
+  }
+
+  public static interface Family {
+      public Map child();
+      public List<Map> children();
+  }
+
+  public static interface Family2 {
+      public Child child();
+      public List<Child> children();
+  }
+
+  public static interface Child {
+      public Integer age();
+      public Integer name();
   }
 
 }
