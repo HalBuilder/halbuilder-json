@@ -55,10 +55,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
         if (flags.contains(RepresentationFactory.STRIP_NULLS)) {
             codec.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         }
-        //if SINGLE_ELEM_ARRAYS is set, write arrays with one element as an array
-        //rather than a single value.
-        codec.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED,
-                        !flags.contains(RepresentationFactory.SINGLE_ELEM_ARRAYS));
+        codec.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, false);
         f.setCodec(codec);
         f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
         return f;
@@ -89,7 +86,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             });
 
             for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
-                if (linkEntry.getValue().size() == 1 && !flags.contains(RepresentationFactory.SINGLE_ELEM_ARRAYS) || linkEntry.getKey().equals("self")) {
+                if (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS) || linkEntry.getKey().equals("self")) {
                     Link link = linkEntry.getValue().iterator().next();
                     g.writeObjectFieldStart(linkEntry.getKey());
                     writeJsonLinkContent(g, link);
@@ -123,7 +120,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             Map<String, Collection<ReadableRepresentation>> resourceMap = representation.getResourceMap();
 
             for (Map.Entry<String, Collection<ReadableRepresentation>> resourceEntry : resourceMap.entrySet()) {
-                if (resourceEntry.getValue().size() == 1 && !flags.contains(RepresentationFactory.SINGLE_ELEM_ARRAYS)) {
+                if (resourceEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS)) {
                     g.writeObjectFieldStart(resourceEntry.getKey());
                     ReadableRepresentation subRepresentation = resourceEntry.getValue().iterator().next();
                     renderJson(flags, g, subRepresentation, true);
