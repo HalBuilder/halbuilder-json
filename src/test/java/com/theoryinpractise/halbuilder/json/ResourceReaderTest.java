@@ -134,4 +134,16 @@ public class ResourceReaderTest {
 
   }
 
+  @Test
+  public void testNestedObject() {
+    ContentRepresentation rep = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(
+        ResourceReaderTest.class.getResourceAsStream("/exampleWithNestedObjects.json")));
+
+    Map map = (Map) rep.getValue("child");
+    assertThat(map).isNotNull();
+    assertThat(map.get("age")).isEqualTo(12);
+
+    assertThat(rep.getContent()).isNotEmpty();
+  }
+
 }

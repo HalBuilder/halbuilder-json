@@ -2,15 +2,17 @@ package com.theoryinpractise.halbuilder.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import com.theoryinpractise.halbuilder.AbstractRepresentationFactory;
+import com.theoryinpractise.halbuilder.api.ContentRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
 import com.theoryinpractise.halbuilder.api.RepresentationReader;
-import com.theoryinpractise.halbuilder.api.ContentRepresentation;
 import com.theoryinpractise.halbuilder.impl.api.Support;
-import com.theoryinpractise.halbuilder.impl.representations.MutableRepresentation;
 import com.theoryinpractise.halbuilder.impl.representations.ContentBasedRepresentation;
+import com.theoryinpractise.halbuilder.impl.representations.MutableRepresentation;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public class JsonRepresentationReader implements RepresentationReader {
 
   }
 
-  private ContentRepresentation readResource(JsonNode rootNode) {
+  private ContentRepresentation readResource(JsonNode rootNode) throws IOException {
 
     ContentBasedRepresentation resource = new ContentBasedRepresentation(representationFactory, rootNode.toString());
 
@@ -116,7 +118,7 @@ public class JsonRepresentationReader implements RepresentationReader {
     return value != null ? value.asText() : null;
   }
 
-  private void readProperties(MutableRepresentation resource, JsonNode rootNode) {
+  private void readProperties(MutableRepresentation resource, JsonNode rootNode) throws IOException {
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
       String fieldName = fieldNames.next();
@@ -129,14 +131,16 @@ public class JsonRepresentationReader implements RepresentationReader {
             }
             resource.withProperty(fieldName, arrayValues);
         } else {
-            resource.withProperty(fieldName, field.isNull() ? null : field.asText());
+            resource.withProperty(fieldName, field.isNull()
+              ? null
+              : ( !field.isContainerNode() ? field.asText() : ImmutableMap.copyOf(mapper.readValue(field.toString(), Map.class))));
         }
       }
     }
 
   }
 
-  private void readResources(MutableRepresentation resource, JsonNode rootNode) {
+  private void readResources(MutableRepresentation resource, JsonNode rootNode) throws IOException {
     if (rootNode.has(EMBEDDED)) {
       Iterator<Map.Entry<String, JsonNode>> fields = rootNode.get(EMBEDDED).fields();
       while (fields.hasNext()) {

@@ -68,7 +68,7 @@
                         <configuration>
                             <!--<attached>false</attached>-->
                             <resourceBundles>
-                                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.0.1-SNAPSHOT</resourceBundle>
+                                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.0.2</resourceBundle>
                             </resourceBundles>
                         </configuration>
                     </execution>
@@ -76,14 +76,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>1.8.1</version>
-                    </dependency>
-                </dependencies>
+                <version>2.5</version>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
                     <goals>deploy</goals>
