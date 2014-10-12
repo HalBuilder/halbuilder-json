@@ -5,13 +5,14 @@ import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import com.theoryinpractise.halbuilder.impl.bytecode.InterfaceContract;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
 import java.io.InputStreamReader;
+import java.util.Map.Entry;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 public class InterfaceSatisfactionTest {
 
@@ -63,6 +64,7 @@ public class InterfaceSatisfactionTest {
     public void testSimpleInterfaceSatisfaction(Class<?> aClass, boolean shouldBeSatisfied) {
 
         ReadableRepresentation representation = representationFactory.readRepresentation(new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
+      
         assertThat(representation.isSatisfiedBy(InterfaceContract.newInterfaceContract(aClass))).isEqualTo(shouldBeSatisfied);
 
     }
