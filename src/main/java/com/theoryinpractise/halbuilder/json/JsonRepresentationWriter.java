@@ -11,7 +11,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.theoryinpractise.halbuilder.api.*;
+import com.google.common.collect.Ordering;
+import com.theoryinpractise.halbuilder.api.Rel;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import com.theoryinpractise.halbuilder.api.RepresentationWriter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -22,7 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.theoryinpractise.halbuilder.impl.api.Support.*;
+import static com.theoryinpractise.halbuilder.impl.api.Support.CURIES;
+import static com.theoryinpractise.halbuilder.impl.api.Support.EMBEDDED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREF;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREFLANG;
+import static com.theoryinpractise.halbuilder.impl.api.Support.LINKS;
+import static com.theoryinpractise.halbuilder.impl.api.Support.NAME;
+import static com.theoryinpractise.halbuilder.impl.api.Support.PROFILE;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TEMPLATED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TITLE;
 
 
 public class JsonRepresentationWriter implements RepresentationWriter<String> {
@@ -86,7 +100,12 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             });
 
             for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
-                if (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS) || linkEntry.getKey().equals("self")) {
+
+                Rel rel = representation.getRels().get(linkEntry.getKey());
+                boolean coalesce = (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS))
+                    || (rel != null && rel.isSingleton());
+
+                if (coalesce) {
                     Link link = linkEntry.getValue().iterator().next();
                     g.writeObjectFieldStart(linkEntry.getKey());
                     writeJsonLinkContent(g, link);
@@ -120,14 +139,30 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             Map<String, Collection<ReadableRepresentation>> resourceMap = representation.getResourceMap();
 
             for (Map.Entry<String, Collection<ReadableRepresentation>> resourceEntry : resourceMap.entrySet()) {
-                if (resourceEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS)) {
+
+                Rel rel = representation.getRels().get(resourceEntry.getKey());
+                boolean coalesce = (resourceEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS))
+                    || (rel != null && rel.isSingleton());
+
+
+                if (coalesce) {
                     g.writeObjectFieldStart(resourceEntry.getKey());
                     ReadableRepresentation subRepresentation = resourceEntry.getValue().iterator().next();
                     renderJson(flags, g, subRepresentation, true);
                     g.writeEndObject();
                 } else {
-                    g.writeArrayFieldStart(resourceEntry.getKey());
-                    for (ReadableRepresentation subRepresentation : resourceEntry.getValue()) {
+
+                    final Collection<ReadableRepresentation> values = rel == null || rel.isSingleton()
+                                                                      ? resourceEntry.getValue()
+                                                                      : Ordering.from(rel.comparator()).sortedCopy(resourceEntry.getValue());
+
+                    final String collectionRel = rel == null || rel.isSingleton() || flags.contains(RepresentationFactory.SILENT_SORTING)
+                        ? resourceEntry.getKey()
+                        : resourceEntry.getKey() + " sorted:" + ((Rel.Sorted) rel).id();
+
+                    g.writeArrayFieldStart(collectionRel);
+
+                    for (ReadableRepresentation subRepresentation : values) {
                         g.writeStartObject();
                         renderJson(flags, g, subRepresentation, true);
                         g.writeEndObject();

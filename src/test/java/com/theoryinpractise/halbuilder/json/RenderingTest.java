@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
+import com.theoryinpractise.halbuilder.api.Rel;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.Representable;
 import com.theoryinpractise.halbuilder.api.Representation;
@@ -21,6 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Comparator;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -39,6 +41,7 @@ public class RenderingTest {
     private String exampleWithSubresourceJson;
     private String exampleWithSubresourceLinkingToItselfJson;
     private String exampleWithMultipleSubresourcesJson;
+    private String exampleWithSortedSubresourcesJson;
     private String exampleWithNullPropertyJson;
     private String exampleWithLiteralNullPropertyJson;
     private String exampleWithMultipleNestedSubresourcesJson;
@@ -59,6 +62,8 @@ public class RenderingTest {
         exampleWithSubresourceLinkingToItselfJson = Resources.toString(RenderingTest.class.getResource("/exampleWithSubresourceLinkingToItself.json"), Charsets.UTF_8)
                 .trim();
         exampleWithMultipleSubresourcesJson = Resources.toString(RenderingTest.class.getResource("/exampleWithMultipleSubresources.json"), Charsets.UTF_8)
+                .trim();
+        exampleWithSortedSubresourcesJson = Resources.toString(RenderingTest.class.getResource("/exampleWithSortedSubresources.json"), Charsets.UTF_8)
                 .trim();
         exampleWithNullPropertyJson = Resources.toString(RenderingTest.class.getResource("/exampleWithNullProperty.json"), Charsets.UTF_8)
                 .trim();
@@ -178,6 +183,21 @@ public class RenderingTest {
     }
 
     @Test
+    public void testHalWithSingletonRel() {
+
+        String href = "customer/123456";
+        ReadableRepresentation party = newBaseResource(href)
+                .withRel(Rel.singleton("ns:users"))
+                .withRel(Rel.singleton("ns:parent"))
+                .withLink("ns:users", BASE_URL + href + "?users")
+                .withBean(new Customer(123456, "Example Resource", 33));
+
+      assertThat(party.toString(RepresentationFactory.HAL_JSON))
+                      .isEqualTo(exampleJson);
+
+    }
+
+    @Test
     public void testHalWithFields() {
 
         String href = "customer/123456";
@@ -258,6 +278,26 @@ public class RenderingTest {
       assertThat(party.toString(RepresentationFactory.HAL_JSON,
                                 RepresentationFactory.COALESCE_ARRAYS))
             .isEqualTo(exampleWithMultipleSubresourcesJson);
+
+    }
+
+    @Test
+    public void testHalWithBeanMultipleOrderedSubResources() {
+
+        String href = "customer/123456";
+        ReadableRepresentation party = newBaseResource(href)
+            .withRel(Rel.sorted("ns:user", "id", new Comparator<ReadableRepresentation>() {
+                public int compare(ReadableRepresentation r1, ReadableRepresentation r2) {
+                    return r2.getValue("id", 0).compareTo(r1.getValue("id", 0));
+                }
+            }))
+            .withLink("ns:users", BASE_URL + href + "?users")
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
+
+        assertThat(party.toString(RepresentationFactory.HAL_JSON,
+                                  RepresentationFactory.COALESCE_ARRAYS))
+            .isEqualTo(exampleWithSortedSubresourcesJson);
 
     }
 

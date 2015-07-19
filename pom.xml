@@ -3,7 +3,7 @@
 
     <groupId>com.theoryinpractise</groupId>
     <artifactId>halbuilder-json</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>halbuilder-json</name>
@@ -68,7 +68,7 @@
                         <configuration>
                             <!--<attached>false</attached>-->
                             <resourceBundles>
-                                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.0.2</resourceBundle>
+                                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.1.1-SNAPSHOT</resourceBundle>
                             </resourceBundles>
                         </configuration>
                     </execution>
