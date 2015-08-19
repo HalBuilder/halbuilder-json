@@ -127,7 +127,7 @@ public class JsonRepresentationReader implements RepresentationReader {
         if(field.isArray()) {
             List<Object> arrayValues = new ArrayList<Object>(field.size());
             for(JsonNode arrayValue : field) {
-                arrayValues.add(ImmutableMap.copyOf(mapper.readValue(arrayValue.toString(), Map.class)));
+              arrayValues.add(!arrayValue.isContainerNode() ? arrayValue.asText() : ImmutableMap.copyOf(mapper.readValue(arrayValue.toString(), Map.class)));
             }
             resource.withProperty(fieldName, arrayValues);
         } else {
