@@ -60,6 +60,13 @@ public class ResourceReaderTest {
         };
     }
 
+    @DataProvider
+    public Object[][] provideResourceWithSimpleArrays() {
+        return new Object[][]{
+                {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithArray.json")))},
+        };
+    }
+
     @Test(dataProvider = "provideResources")
     public void testReader(ReadableRepresentation representation) {
         assertThat(representation.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
@@ -78,6 +85,12 @@ public class ResourceReaderTest {
     public void testReaderWithNulls(ReadableRepresentation representation) {
         assertThat(representation.getValue("nullprop")).isNull();
         assertThat(representation.getProperties().get("nullprop")).isNull();
+    }
+
+    @Test(dataProvider = "provideResourceWithSimpleArrays")
+    public void testReaderWithArray(ReadableRepresentation representation) {
+      final List array = (List) representation.getValue("array");
+      assertThat(array).hasSize(3);
     }
 
     @Test(dataProvider = "provideResources")
