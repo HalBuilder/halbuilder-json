@@ -1,6 +1,10 @@
 package com.theoryinpractise.halbuilder.json;
 
-import com.theoryinpractise.halbuilder.api.*;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import javaslang.control.Option;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -11,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
-import static fj.data.Option.some;
 import static org.apache.commons.jxpath.JXPathContext.newContext;
 import static org.boon.Lists.idx;
 import static org.boon.Maps.idxStr;
@@ -68,11 +71,11 @@ public class ResourceReaderTest implements ResourceReader {
 
   @Test(dataProvider = "provideResources")
   public void testReader(ReadableRepresentation representation) {
-    assertThat(representation.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
+    assertThat(representation.getResourceLink().get().getHref()).isEqualTo("https://example.com/api/customer/123456");
     assertThat(representation.getNamespaces()).hasSize(2);
-    assertThat(representation.getProperties().get("name")).isEqualTo(some(some("Example Resource")));
-    assertThat(representation.getValue("name")).isEqualTo(some("Example Resource"));
-    assertThat(representation.getValue("name")).isEqualTo(some("Example Resource"));
+    assertThat(representation.getProperties().get("name")).isEqualTo(Option.of(Option.of("Example Resource")));
+    assertThat(representation.getValue("name")).isEqualTo(Option.of("Example Resource"));
+    assertThat(representation.getValue("name")).isEqualTo(Option.of("Example Resource"));
     assertThat(representation.getCanonicalLinks()).hasSize(3);
     assertThat(representation.getResources()).hasSize(0);
     assertThat(representation.getResourcesByRel("role:admin")).hasSize(0);
@@ -82,20 +85,20 @@ public class ResourceReaderTest implements ResourceReader {
 
   @Test(dataProvider = "provideResourcesWithNulls")
   public void testReaderWithNulls(ReadableRepresentation representation) {
-    assertThat(representation.getValue("nullprop").isNone()).isTrue();
-    assertThat(representation.getProperties().get("nullprop").some().isNone()).isTrue();
+    assertThat(representation.getValue("nullprop").isEmpty()).isTrue();
+    assertThat(representation.getProperties().get("nullprop").get().isEmpty()).isTrue();
   }
 
   @Test(dataProvider = "provideResourceWithSimpleArrays")
   public void testReaderWithArray(ReadableRepresentation representation) {
     final List array = (List) representation.getValue("array")
-                                            .orSome(new ArrayList());
+                                            .orElse(new ArrayList());
     assertThat(array).hasSize(3);
   }
 
   @Test(dataProvider = "provideResources")
   public void testLinkAttributes(ReadableRepresentation representation) {
-    Link parent = representation.getLinkByRel("ns:parent");
+    Link parent = representation.getLinkByRel("ns:parent").get();
     assertThat(parent.getHref()).isEqualTo("https://example.com/api/customer/1234");
     assertThat(parent.getRel()).isEqualTo("ns:parent");
     assertThat(parent.getName()).isEqualTo("bob");
@@ -105,25 +108,25 @@ public class ResourceReaderTest implements ResourceReader {
 
   @Test(dataProvider = "provideSubResources")
   public void testSubReader(ReadableRepresentation representation) {
-    assertThat(representation.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
+    assertThat(representation.getResourceLink().get().getHref()).isEqualTo("https://example.com/api/customer/123456");
     assertThat(representation.getNamespaces()).hasSize(2);
     assertThat(representation.getCanonicalLinks()).hasSize(3);
     assertThat(representation.getResources()).hasSize(1);
-    assertThat(representation.getResources().iterator().next().getValue().getValue("name")).isEqualTo(some("Example User"));
+    assertThat(representation.getResources().head()._2.getValue("name")).isEqualTo(Option.of(("Example User")));
     assertThat(representation.getResourcesByRel("ns:user")).hasSize(1);
   }
 
   @Test(dataProvider = "provideResourcesWithouHref")
   public void testResourcesWithoutHref(ReadableRepresentation representation) {
-    assertThat(representation.getResourceLink()).isNull();
+    assertThat(representation.getResourceLink().isDefined()).isFalse();
     assertThat(representation.getNamespaces()).hasSize(0);
     assertThat(representation.getCanonicalLinks()).hasSize(0);
-    assertThat(representation.getValue("name")).isEqualTo(some("Example Resource"));
+    assertThat(representation.getValue("name")).isEqualTo(Option.of("Example Resource"));
   }
 
   @Test(dataProvider = "provideResourceWithUnderscoredProperty")
   public void testResourceWithUnderscoredProperty(ReadableRepresentation representation) {
-    assertThat(representation.getValue("_name")).isEqualTo(some("Example Resource"));
+    assertThat(representation.getValue("_name")).isEqualTo(Option.of("Example Resource"));
   }
 
   @Test(expectedExceptions = RepresentationException.class)
@@ -139,25 +142,29 @@ public class ResourceReaderTest implements ResourceReader {
   @Test
   public void testContentExtraction() {
 
-    ContentRepresentation rep = readJson("/example.json");
+    ReadableRepresentation rep = readJson("/example.json");
     assertThat(rep.getContent()).isNotEmpty();
-    assertThat(idxStr(fromJson(rep.getContent(), Map.class), "name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/name")).isEqualTo("ns");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/href"))
+
+    final String content = rep.getContent().get();
+
+    assertThat(idxStr(fromJson(content, Map.class), "name")).isEqualTo("Example Resource");
+    assertThat(newContext(fromJson(content)).getValue("name")).isEqualTo("Example Resource");
+    assertThat(newContext(fromJson(content)).getValue("_links/curies/name")).isEqualTo("ns");
+    assertThat(newContext(fromJson(content)).getValue("_links/curies/href"))
         .isEqualTo("https://example.com/apidocs/ns/{rel}");
 
+    assertThat(rep.getResourceLink().get().getHref()).isEqualTo("https://example.com/api/customer/123456");
   }
 
   @Test
   public void testNestedObject() {
-    ContentRepresentation rep = readJson("/exampleWithNestedObjects.json");
+    ReadableRepresentation rep = readJson("/exampleWithNestedObjects.json");
 
-    Map map = (Map) rep.getValue("child").some();
+    Map map = (Map) rep.getValue("child").get();
     assertThat(map).isNotNull();
     assertThat(map.get("age")).isEqualTo(12);
 
-    List<Map> list = (List) rep.getValue("children").some();
+    List<Map> list = (List) rep.getValue("children").get();
     assertThat(list).hasSize(2);
     assertThat(idx(list, 0).get("age")).isEqualTo(12);
 

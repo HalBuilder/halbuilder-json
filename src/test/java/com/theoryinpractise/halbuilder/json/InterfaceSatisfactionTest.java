@@ -1,15 +1,18 @@
 package com.theoryinpractise.halbuilder.json;
 
-import com.theoryinpractise.halbuilder.api.*;
+import com.theoryinpractise.halbuilder.api.Contract;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import com.theoryinpractise.halbuilder.impl.bytecode.InterfaceContract;
-import fj.data.List;
-import fj.data.TreeMap;
+import javaslang.collection.List;
+import javaslang.collection.Map;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
@@ -25,7 +28,7 @@ public class InterfaceSatisfactionTest {
         {INamed.class, true},
         {IJob.class, false},
         {ISimpleJob.class, false},
-    };
+        };
   }
 
   @DataProvider
@@ -35,7 +38,8 @@ public class InterfaceSatisfactionTest {
             representationFactory.readRepresentation(
                 HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json"))),
             representationFactory.readRepresentation(
-                HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNullProperty.json")))
+                HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNullProperty"
+                                                                                                    + ".json")))
         }
     };
   }
@@ -54,19 +58,14 @@ public class InterfaceSatisfactionTest {
   public void testAnonymousInnerContractSatisfaction(ReadableRepresentation representation,
                                                      ReadableRepresentation nullPropertyRepresentation) {
 
-    Contract contractHasName = resource -> resource.getProperties().contains("name");
-    Contract contractHasOptional = resource -> resource.getProperties().contains("optional");
-    Contract contractHasOptionalFalse = resource -> resource.getProperties().contains("optional")
-                                                    && resource.getProperties().get("optional").equals("false");
+    Contract contractHasName = resource -> resource.getProperties().containsKey("name");
+    Contract contractHasOptional = resource -> resource.getProperties().containsKey("optional");
+    Contract contractHasOptionalFalse = resource -> resource.getProperties().containsKey("optional")
+                                                    && resource.getProperties().get("optional").get().equals("false");
 
-    Contract contractHasNullProperty = new Contract() {
-      public boolean isSatisfiedBy(ReadableRepresentation resource) {
-        return resource.getProperties().get("nullprop")
-                       .map(p -> true)
-                       .orSome(() -> false);
-
-      }
-    };
+    Contract contractHasNullProperty = resource -> resource.getProperties().get("nullprop")
+                                                           .map(p -> true)
+                                                           .orElse(false);
 
     assertThat(representation.isSatisfiedBy(contractHasName)).isEqualTo(true);
     assertThat(representation.isSatisfiedBy(contractHasOptional)).isEqualTo(true);
@@ -164,7 +163,7 @@ public class InterfaceSatisfactionTest {
   }
 
   public interface INothing {
-    TreeMap<String, Collection<ReadableRepresentation>> getEmbedded();
+    Map<String, List<ReadableRepresentation>> getEmbedded();
   }
 
   public interface IPersonWithChild {

@@ -9,28 +9,39 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.google.common.collect.Ordering;
-import com.theoryinpractise.halbuilder.api.*;
-import fj.P2;
-import fj.data.List;
-import fj.data.Option;
-import fj.data.Set;
-import fj.data.TreeMap;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.Rel;
+import com.theoryinpractise.halbuilder.api.Rels;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import com.theoryinpractise.halbuilder.api.RepresentationWriter;
+import javaslang.Tuple2;
+import javaslang.collection.List;
+import javaslang.collection.Set;
+import javaslang.control.Option;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 
-import static com.theoryinpractise.halbuilder.impl.api.Support.*;
-
+import static com.theoryinpractise.halbuilder.impl.api.Support.CURIES;
+import static com.theoryinpractise.halbuilder.impl.api.Support.EMBEDDED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREF;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREFLANG;
+import static com.theoryinpractise.halbuilder.impl.api.Support.LINKS;
+import static com.theoryinpractise.halbuilder.impl.api.Support.NAME;
+import static com.theoryinpractise.halbuilder.impl.api.Support.PROFILE;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TEMPLATED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TITLE;
 
 public class JsonRepresentationWriter
     implements RepresentationWriter<String> {
 
   public void write(ReadableRepresentation representation, Set<URI> flags, Writer writer) {
-
     try {
       JsonGenerator g = getJsonGenerator(flags, writer);
       g.writeStartObject();
@@ -40,13 +51,12 @@ public class JsonRepresentationWriter
     } catch (IOException e) {
       throw new RepresentationException(e);
     }
-
   }
 
   protected JsonGenerator getJsonGenerator(Set<URI> flags, Writer writer)
       throws IOException {
     JsonGenerator g = getJsonFactory(flags).createJsonGenerator(writer);
-    if (flags.member(RepresentationFactory.PRETTY_PRINT)) {
+    if (flags.contains(RepresentationFactory.PRETTY_PRINT)) {
       g.setPrettyPrinter(new DefaultPrettyPrinter());
     }
     return g;
@@ -55,7 +65,7 @@ public class JsonRepresentationWriter
   protected JsonFactory getJsonFactory(Set<URI> flags) {
     JsonFactory f = new JsonFactory();
     ObjectMapper codec = new ObjectMapper();
-    if (flags.member(RepresentationFactory.STRIP_NULLS)) {
+    if (flags.contains(RepresentationFactory.STRIP_NULLS)) {
       codec.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     codec.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, false);
@@ -64,32 +74,46 @@ public class JsonRepresentationWriter
     return f;
   }
 
+  private boolean isSingleton(Rel matcher) {
+    return matcher.match(Rels.cases(
+        (rel) -> true,
+        (rel) -> false,
+        (rel) -> false,
+        (rel, key, comparator) -> false));
+  }
+
+  private boolean isCollection(Rel matcher) {
+    return matcher.match(Rels.cases(
+        (rel) -> false,
+        (rel) -> false,
+        (rel) -> true,
+        (rel, key, comparator) -> false));
+  }
+
   private void renderJson(Set<URI> flags, JsonGenerator g, ReadableRepresentation representation, boolean embedded)
       throws IOException {
 
     if (!representation.getCanonicalLinks().isEmpty() || (!embedded && !representation.getNamespaces().isEmpty())) {
       g.writeObjectFieldStart(LINKS);
 
-      List<Link> links = List.nil();
+      List<Link> links = List.empty();
 
       // Include namespaces as links when not embedded
       if (!embedded) {
-        for (P2<String, String> entry : representation.getNamespaces().toStream()) {
-          links = links.cons(new Link(null, CURIES, entry._2(), entry._1(), null, null, null));
-        }
+        links = links.appendAll(representation.getNamespaces()
+                                              .map(ns -> new Link(CURIES, ns._2, ns._1, null, null, null)));
       }
 
       // Add representation links
-      links = links.append(representation.getLinks());
+      links = links.appendAll(representation.getLinks());
 
       // Partition representation links by rel
       Multimap<String, Link> linkMap = Multimaps.index(links, Link::getRel);
 
       for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
 
-        Rel rel = representation.getRels().get(linkEntry.getKey()).some();
-        boolean coalesce = (linkEntry.getValue().size() == 1 && flags.member(RepresentationFactory.COALESCE_ARRAYS))
-                           || rel.isSingleton();
+        Rel rel = representation.getRels().get(linkEntry.getKey()).get();
+        boolean coalesce = !isCollection(rel) && (isSingleton(rel) || linkEntry.getValue().size() == 1);
 
         if (coalesce) {
           Link link = linkEntry.getValue().iterator().next();
@@ -109,12 +133,12 @@ public class JsonRepresentationWriter
       g.writeEndObject();
     }
 
-    for (P2<String, Option<Object>> entry : representation.getProperties().toStream()) {
-      if (entry._2().isSome()) {
-        g.writeObjectField(entry._1(), entry._2().some());
+    for (Tuple2<String, Option<Object>> entry : representation.getProperties()) {
+      if (entry._2.isDefined()) {
+        g.writeObjectField(entry._1, entry._2.get());
       } else {
-        if (!flags.member(RepresentationFactory.STRIP_NULLS)) {
-          g.writeNullField(entry._1());
+        if (!flags.contains(RepresentationFactory.STRIP_NULLS)) {
+          g.writeNullField(entry._1);
         }
       }
     }
@@ -122,15 +146,13 @@ public class JsonRepresentationWriter
     if (!representation.getResources().isEmpty()) {
       g.writeObjectFieldStart(EMBEDDED);
 
-      TreeMap<String, Collection<? extends ReadableRepresentation>> resourceMap = representation.getResourceMap();
+      javaslang.collection.Map<String, List<? extends ReadableRepresentation>> resourceMap = representation.getResourceMap();
 
-      for (P2<String, Collection<? extends ReadableRepresentation>> resourceEntry : resourceMap.toStream()) {
+      for (Tuple2<String, List<? extends ReadableRepresentation>> resourceEntry : resourceMap) {
 
-        Rel rel = representation.getRels().get(resourceEntry._1()).some();
+        Rel rel = representation.getRels().get(resourceEntry._1).get();
 
-        boolean coalesce = (resourceEntry._2().size() == 1 && flags.member(RepresentationFactory.COALESCE_ARRAYS))
-                           || rel.isSingleton();
-
+        boolean coalesce = !isCollection(rel) && (isSingleton(rel) || resourceEntry._2().length() == 1);
 
         if (coalesce) {
           g.writeObjectFieldStart(resourceEntry._1());
@@ -139,12 +161,14 @@ public class JsonRepresentationWriter
           g.writeEndObject();
         } else {
 
-          final Collection<? extends ReadableRepresentation> values =
-              rel.isSingleton()
-              ? resourceEntry._2()
-              : Ordering.from(rel.comparator()).sortedCopy(resourceEntry._2());
+          final Comparator<ReadableRepresentation> repComparator = Rels.getComparator(rel)
+                                                                       .orElse(Rel.naturalComparator);
 
-          final String collectionRel = rel.isSingleton() || flags.member(RepresentationFactory.SILENT_SORTING)
+          final List<? extends ReadableRepresentation> values = isSingleton(rel)
+                                                                ? resourceEntry._2()
+                                                                : resourceEntry._2().sort(repComparator);
+
+          final String collectionRel = isSingleton(rel) || flags.contains(RepresentationFactory.SILENT_SORTING)
                                        ? rel.rel()
                                        : rel.fullRel();
 

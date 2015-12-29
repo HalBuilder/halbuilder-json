@@ -1,6 +1,6 @@
 package com.theoryinpractise.halbuilder.json;
 
-import com.theoryinpractise.halbuilder.api.ContentRepresentation;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 
 import java.io.InputStreamReader;
@@ -12,11 +12,11 @@ public interface ResourceReader {
 
   RepresentationFactory representationFactory();
 
-  default ContentRepresentation readJson(String path) {
+  default ReadableRepresentation readJson(String path) {
     return readJson(new InputStreamReader(ResourceReader.class.getResourceAsStream(path)));
   }
 
-  default ContentRepresentation readJson(Reader reader) {
+  default ReadableRepresentation readJson(Reader reader) {
     return representationFactory().readRepresentation(HAL_JSON, reader);
   }
 
