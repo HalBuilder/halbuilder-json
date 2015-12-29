@@ -3,19 +3,20 @@ package com.theoryinpractise.halbuilder.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import com.theoryinpractise.halbuilder.AbstractRepresentationFactory;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
 import com.theoryinpractise.halbuilder.api.RepresentationReader;
 import com.theoryinpractise.halbuilder.impl.api.Support;
 import com.theoryinpractise.halbuilder.impl.representations.PersistentRepresentation;
+import javaslang.collection.TreeMap;
 import javaslang.control.Option;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class JsonRepresentationReader
       return readResource(rootNode).withContent(source);
 
     } catch (Exception e) {
-      throw new RepresentationException(e);
+      throw new RepresentationException(e.getMessage(), e);
     }
 
   }
@@ -139,7 +140,7 @@ public class JsonRepresentationReader
             for (JsonNode arrayValue : field) {
               arrayValues.add(!arrayValue.isContainerNode()
                               ? arrayValue.asText()
-                              : ImmutableMap.copyOf(mapper.readValue(arrayValue.toString(), Map.class)));
+                              : fromJavaMap(mapper.readValue(arrayValue.toString(), Map.class)));
             }
             newRep = newRep.withProperty(fieldName, arrayValues);
           } else {
@@ -147,7 +148,7 @@ public class JsonRepresentationReader
                                                     ? null
                                                     : (!field.isContainerNode()
                                                        ? field.asText()
-                                                       : ImmutableMap.copyOf(mapper.readValue(field.toString(), Map.class))));
+                                                       : fromJavaMap((mapper.readValue(field.toString(), Map.class)))));
           }
         }
       }
@@ -156,6 +157,14 @@ public class JsonRepresentationReader
       throw Throwables.propagate(e);
     }
 
+  }
+
+  private TreeMap<String, Object> fromJavaMap(java.util.Map<String, Object> map) {
+    TreeMap<String, Object> returnMap = TreeMap.empty(Comparator.naturalOrder());
+    for (java.util.Map.Entry<String, Object> entry : map.entrySet()) {
+      returnMap = returnMap.put(entry.getKey(), entry.getValue());
+    }
+    return returnMap;
   }
 
   private PersistentRepresentation readResources(JsonNode rootNode, PersistentRepresentation resource) {

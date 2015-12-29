@@ -4,6 +4,7 @@ import com.theoryinpractise.halbuilder.api.Link;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import javaslang.collection.Map;
 import javaslang.control.Option;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -12,9 +13,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
+import static javaslang.control.Option.some;
 import static org.apache.commons.jxpath.JXPathContext.newContext;
 import static org.boon.Lists.idx;
 import static org.boon.Maps.idxStr;
@@ -22,7 +23,6 @@ import static org.boon.json.JsonFactory.fromJson;
 
 public class ResourceReaderTest implements ResourceReader {
 
-  @Override
   public RepresentationFactory representationFactory() {
     return new JsonRepresentationFactory();
   }
@@ -38,6 +38,13 @@ public class ResourceReaderTest implements ResourceReader {
   public Object[][] provideResourcesWithNulls() {
     return new Object[][]{
         {readJson("/exampleWithNullProperty.json")},
+    };
+  }
+
+  @DataProvider
+  public Object[][] provideResourcesWithNullObjectProperty() {
+    return new Object[][]{
+        {readJson("/exampleWithNullObjectProperty.json")},
     };
   }
 
@@ -87,6 +94,11 @@ public class ResourceReaderTest implements ResourceReader {
   public void testReaderWithNulls(ReadableRepresentation representation) {
     assertThat(representation.getValue("nullprop").isEmpty()).isTrue();
     assertThat(representation.getProperties().get("nullprop").get().isEmpty()).isTrue();
+  }
+
+  @Test(dataProvider = "provideResourcesWithNullObjectProperty")
+  public void testReaderWithNullObjectProperty(ReadableRepresentation representation) {
+    assertThat(representation.getValue("page").isDefined()).isTrue();
   }
 
   @Test(dataProvider = "provideResourceWithSimpleArrays")
@@ -146,11 +158,12 @@ public class ResourceReaderTest implements ResourceReader {
     assertThat(rep.getContent()).isNotEmpty();
 
     final String content = rep.getContent().get();
+    final java.util.Map mapFromJson = fromJson(content, java.util.Map.class);
 
-    assertThat(idxStr(fromJson(content, Map.class), "name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(content)).getValue("name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(content)).getValue("_links/curies/name")).isEqualTo("ns");
-    assertThat(newContext(fromJson(content)).getValue("_links/curies/href"))
+    assertThat(idxStr(mapFromJson, "name")).isEqualTo("Example Resource");
+    assertThat(newContext(mapFromJson).getValue("name")).isEqualTo("Example Resource");
+    assertThat(newContext(mapFromJson).getValue("_links/curies/name")).isEqualTo("ns");
+    assertThat(newContext(mapFromJson).getValue("_links/curies/href"))
         .isEqualTo("https://example.com/apidocs/ns/{rel}");
 
     assertThat(rep.getResourceLink().get().getHref()).isEqualTo("https://example.com/api/customer/123456");
@@ -162,20 +175,20 @@ public class ResourceReaderTest implements ResourceReader {
 
     Map map = (Map) rep.getValue("child").get();
     assertThat(map).isNotNull();
-    assertThat(map.get("age")).isEqualTo(12);
+    assertThat(map.get("age")).isEqualTo(some(12));
 
     List<Map> list = (List) rep.getValue("children").get();
     assertThat(list).hasSize(2);
-    assertThat(idx(list, 0).get("age")).isEqualTo(12);
+    assertThat(idx(list, 0).get("age")).isEqualTo(some(12));
 
     assertThat(rep.getContent()).isNotEmpty();
 
     // These tests should actually be in the core
     Map childMap = rep.toClass(Family.class).child();
-    assertThat(childMap.get("age")).isEqualTo(12);
+    assertThat(childMap.get("age")).isEqualTo(some(12));
 
     List<Map> childList = rep.toClass(Family.class).children();
-    assertThat(idx(childList, 0).get("age")).isEqualTo(12);
+    assertThat(idx(childList, 0).get("age")).isEqualTo(some(12));
 
     Child child = rep.toClass(Family2.class).child();
     assertThat(child.age()).isEqualTo(12);
