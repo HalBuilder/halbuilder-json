@@ -15,13 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
+import static javaslang.control.Option.none;
 import static javaslang.control.Option.some;
 import static org.apache.commons.jxpath.JXPathContext.newContext;
 import static org.boon.Lists.idx;
 import static org.boon.Maps.idxStr;
 import static org.boon.json.JsonFactory.fromJson;
 
-public class ResourceReaderTest implements ResourceReader {
+public class ResourceReaderTest
+    implements ResourceReader {
 
   public RepresentationFactory representationFactory() {
     return new JsonRepresentationFactory();
@@ -29,49 +31,49 @@ public class ResourceReaderTest implements ResourceReader {
 
   @DataProvider
   public Object[][] provideResources() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/example.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideResourcesWithNulls() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithNullProperty.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideResourcesWithNullObjectProperty() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithNullObjectProperty.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideSubResources() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithSubresource.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideResourcesWithouHref() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithoutHref.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideResourceWithUnderscoredProperty() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithUnderscoredProperty.json")},
     };
   }
 
   @DataProvider
   public Object[][] provideResourceWithSimpleArrays() {
-    return new Object[][]{
+    return new Object[][] {
         {readJson("/exampleWithArray.json")},
     };
   }
@@ -98,7 +100,13 @@ public class ResourceReaderTest implements ResourceReader {
 
   @Test(dataProvider = "provideResourcesWithNullObjectProperty")
   public void testReaderWithNullObjectProperty(ReadableRepresentation representation) {
-    assertThat(representation.getValue("page").isDefined()).isTrue();
+    final Option<Integer> offset = representation.getValue("page", Map.class)
+                                                 .flatMap(p -> Option.of((Integer) p.get("offset").get()));
+    final Option<Integer> limit = representation.getValue("page", Map.class)
+                                                .flatMap(p -> Option.of((Integer) p.get("limit").get()));
+
+    assertThat(offset).isEqualTo(none());
+    assertThat(limit).isEqualTo(some(5));
   }
 
   @Test(dataProvider = "provideResourceWithSimpleArrays")
