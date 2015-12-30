@@ -138,17 +138,11 @@ public class JsonRepresentationReader
           if (field.isArray()) {
             List<Object> arrayValues = new ArrayList<Object>(field.size());
             for (JsonNode arrayValue : field) {
-              arrayValues.add(!arrayValue.isContainerNode()
-                              ? arrayValue.asText()
-                              : fromJavaMap(mapper.readValue(arrayValue.toString(), Map.class)));
+              arrayValues.add(valueFromNode(arrayValue));
             }
             newRep = newRep.withProperty(fieldName, arrayValues);
           } else {
-            newRep = newRep.withProperty(fieldName, field.isNull()
-                                                    ? null
-                                                    : (!field.isContainerNode()
-                                                       ? field.asText()
-                                                       : fromJavaMap((mapper.readValue(field.toString(), Map.class)))));
+            newRep = newRep.withProperty(fieldName, valueFromNode(field));
           }
         }
       }
@@ -157,6 +151,28 @@ public class JsonRepresentationReader
       throw Throwables.propagate(e);
     }
 
+  }
+
+  private Object valueFromNode(JsonNode field) throws IOException {
+    if (field.isNull()) {
+      return null;
+    } else {
+      if (field.isContainerNode()) {
+        return fromJavaMap(mapper.readValue(field.toString(), Map.class));
+      } else {
+        if (field.isBigDecimal()) {
+          return field.decimalValue();
+        } else if (field.isBigInteger()) {
+          return field.bigIntegerValue();
+        } else if (field.isInt()) {
+          return field.intValue();
+        } else if (field.isBoolean()) {
+          return field.booleanValue();
+        } else {
+          return field.asText();
+        }
+      }
+    }
   }
 
   private TreeMap<String, Object> fromJavaMap(java.util.Map<String, Object> map) {

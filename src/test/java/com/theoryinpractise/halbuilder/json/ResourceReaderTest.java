@@ -82,9 +82,11 @@ public class ResourceReaderTest
   public void testReader(ReadableRepresentation representation) {
     assertThat(representation.getResourceLink().get().getHref()).isEqualTo("https://example.com/api/customer/123456");
     assertThat(representation.getNamespaces()).hasSize(2);
-    assertThat(representation.getProperties().get("name")).isEqualTo(Option.of(Option.of("Example Resource")));
-    assertThat(representation.getValue("name")).isEqualTo(Option.of("Example Resource"));
-    assertThat(representation.getValue("name")).isEqualTo(Option.of("Example Resource"));
+    assertThat(representation.getProperties().get("name")).isEqualTo(some(some("Example Resource")));
+    assertThat(representation.getValue("name")).isEqualTo(some("Example Resource"));
+    assertThat(representation.getValue("name")).isEqualTo(some("Example Resource"));
+    assertThat(representation.getValue("age")).isEqualTo(some(33));
+    assertThat(representation.getValue("expired")).isEqualTo(some(false));
     assertThat(representation.getCanonicalLinks()).hasSize(3);
     assertThat(representation.getResources()).hasSize(0);
     assertThat(representation.getResourcesByRel("role:admin")).hasSize(0);
