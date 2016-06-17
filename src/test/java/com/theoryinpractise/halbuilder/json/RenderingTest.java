@@ -43,6 +43,7 @@ public class RenderingTest {
   private String exampleWithTemplateJson;
   private String exampleWithArray;
   private String exampleWithSingleElemArray;
+  private String exampleWithEmptySubRepresentation;
 
   private static String trimmedResource(String path) throws IOException {
     return Resources.toString(RenderingTest.class.getResource(path), Charsets.UTF_8).trim();
@@ -65,6 +66,7 @@ public class RenderingTest {
     exampleWithTemplateJson = trimmedResource("/exampleWithTemplate.json");
     exampleWithArray = trimmedResource("/exampleWithArray.json");
     exampleWithSingleElemArray = trimmedResource("/exampleWithSingleElemArray.json");
+    exampleWithEmptySubRepresentation = trimmedResource("/exampleWithEmptySubresource.json");
   }
 
   @Test
@@ -203,6 +205,19 @@ public class RenderingTest {
     assertThat(party.toString(RepresentationFactory.HAL_JSON))
         .isEqualTo(exampleWithSubresourceJson);
 
+  }
+
+  @Test
+  public void testHalWithEmptySubResource() {
+    String href = "customer/123456";
+    ReadableRepresentation party = newBaseResource(href)
+                                       .withLink("ns:users", BASE_URL + href + "?users")
+                                       .withRepresentation("ns:users",  representationFactory
+                                           .newRepresentation("1")
+                                           .setEmptySubRepresentation(true));
+
+    assertThat(party.toString(RepresentationFactory.HAL_JSON))
+        .isEqualTo(exampleWithEmptySubRepresentation);
   }
 
   @Test

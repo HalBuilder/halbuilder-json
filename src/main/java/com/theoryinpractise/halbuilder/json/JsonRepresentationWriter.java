@@ -142,25 +142,26 @@ public class JsonRepresentationWriter
         }
       }
     }
-
     if (!representation.getResources().isEmpty()) {
       g.writeObjectFieldStart(EMBEDDED);
 
       javaslang.collection.Map<String, List<? extends ReadableRepresentation>> resourceMap = representation.getResourceMap();
-
       for (Tuple2<String, List<? extends ReadableRepresentation>> resourceEntry : resourceMap) {
-
         Rel rel = representation.getRels().get(resourceEntry._1).get();
 
         boolean coalesce = !isCollection(rel) && (isSingleton(rel) || resourceEntry._2().length() == 1);
 
         if (coalesce) {
-          g.writeObjectFieldStart(resourceEntry._1());
           ReadableRepresentation subRepresentation = resourceEntry._2().iterator().next();
-          renderJson(flags, g, subRepresentation, true);
-          g.writeEndObject();
+          if (!subRepresentation.isEmptySubRepresentation()) {
+            g.writeObjectFieldStart(resourceEntry._1());
+            renderJson(flags, g, subRepresentation, true);
+            g.writeEndObject();
+          } else {
+            g.writeArrayFieldStart(rel.rel());
+            g.writeEndArray();
+          }
         } else {
-
           final Comparator<ReadableRepresentation> repComparator = Rels.getComparator(rel)
                                                                        .orElse(Rel.naturalComparator);
 
@@ -175,6 +176,9 @@ public class JsonRepresentationWriter
           g.writeArrayFieldStart(collectionRel);
 
           for (ReadableRepresentation subRepresentation : values) {
+            if (subRepresentation.isEmptySubRepresentation()) {
+              continue;
+            }
             g.writeStartObject();
             renderJson(flags, g, subRepresentation, true);
             g.writeEndObject();
