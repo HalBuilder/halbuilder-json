@@ -35,8 +35,12 @@ public class JsonRepresentationReader implements RepresentationReader {
   private final AbstractRepresentationFactory representationFactory;
 
   public JsonRepresentationReader(AbstractRepresentationFactory representationFactory) {
+    this(representationFactory, new ObjectMapper());
+  }
+
+  public JsonRepresentationReader(AbstractRepresentationFactory representationFactory, ObjectMapper mapper) {
     this.representationFactory = representationFactory;
-    this.mapper = new ObjectMapper();
+    this.mapper = mapper;
   }
 
   public ContentRepresentation read(Reader reader) {

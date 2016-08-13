@@ -27,6 +27,16 @@ import static com.theoryinpractise.halbuilder.impl.api.Support.*;
 
 public class JsonRepresentationWriter implements RepresentationWriter<String> {
 
+    private final ObjectMapper mapper;
+
+    public JsonRepresentationWriter() {
+        this(new ObjectMapper());
+    }
+
+    public JsonRepresentationWriter(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     public void write(ReadableRepresentation representation, Set<URI> flags, Writer writer) {
 
         try {
@@ -51,7 +61,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
 
     protected JsonFactory getJsonFactory(Set<URI> flags) {
         JsonFactory f = new JsonFactory();
-        ObjectMapper codec = new ObjectMapper();
+        ObjectMapper codec = this.mapper.copy();
         if (flags.contains(RepresentationFactory.STRIP_NULLS)) {
             codec.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         }
