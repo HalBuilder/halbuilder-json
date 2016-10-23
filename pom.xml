@@ -3,7 +3,7 @@
 
     <groupId>com.theoryinpractise</groupId>
     <artifactId>halbuilder-json</artifactId>
-    <version>4.0.5-SNAPSHOT</version>
+    <version>4.0.5</version>
     <packaging>jar</packaging>
 
     <name>halbuilder-json</name>
@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</connection>
         <developerConnection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</developerConnection>
         <url>http://github.com/HalBuilder/halbuilder-json</url>
-        <tag>HEAD</tag>
+        <tag>halbuilder-json-4.0.5</tag>
     </scm>
 
     <developers>
