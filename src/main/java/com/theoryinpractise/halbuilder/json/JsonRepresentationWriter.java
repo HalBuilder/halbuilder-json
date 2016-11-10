@@ -96,7 +96,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
             });
 
             for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
-                if (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_LINKS) || linkEntry.getKey().equals("self")) {
+                if (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS) || linkEntry.getKey().equals("self")) {
                     Link link = linkEntry.getValue().iterator().next();
                     g.writeObjectFieldStart(linkEntry.getKey());
                     writeJsonLinkContent(g, link);
