@@ -18,12 +18,13 @@
         <project.build.outputEncoding>${project.custom.encoding}</project.build.outputEncoding>
         <project.reporting.outputEncoding>${project.custom.encoding}</project.reporting.outputEncoding>
         <!-- java version -->
-        <project.custom.java.version>1.8</project.custom.java.version>
+        <project.custom.java.version>9</project.custom.java.version>
+        <maven.compiler.release>9</maven.compiler.release>
         <maven.compiler.source>${project.custom.java.version}</maven.compiler.source>
         <maven.compiler.target>${project.custom.java.version}</maven.compiler.target>
         <!-- jpms automatic module name -->
         <project.Automatic-Module-Name>com.theoryinpractise.halbuilder.json</project.Automatic-Module-Name>
-        <jackson.version>2.8.1</jackson.version>
+        <jackson.version>2.9.1</jackson.version>
     </properties>
 
     <scm>
@@ -208,7 +209,13 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>23.2-jre</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
