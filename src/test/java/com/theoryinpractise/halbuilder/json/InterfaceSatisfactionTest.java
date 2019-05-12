@@ -1,6 +1,10 @@
 package com.theoryinpractise.halbuilder.json;
 
-import com.theoryinpractise.halbuilder.api.*;
+import com.theoryinpractise.halbuilder.api.Contract;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
 import com.theoryinpractise.halbuilder.impl.bytecode.InterfaceContract;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -19,7 +23,7 @@ public class InterfaceSatisfactionTest {
 
   private RepresentationFactory representationFactory = new JsonRepresentationFactory();
 
-  public static interface IPerson {
+  public interface IPerson {
     Integer getAge();
 
     Boolean getExpired();
@@ -31,27 +35,27 @@ public class InterfaceSatisfactionTest {
     List<Link> getLinks();
   }
 
-  public static interface INamed {
+  public interface INamed {
     String name();
   }
 
-  public static interface IJob {
+  public interface IJob {
     Integer getJobId();
   }
 
-  public static interface ISimpleJob {
+  public interface ISimpleJob {
     Integer jobId();
   }
 
-  public static interface INullprop {
+  public interface INullprop {
     String nullprop();
   }
 
-  public static interface INothing {
+  public interface INothing {
     Map<String, Collection<ReadableRepresentation>> getEmbedded();
   }
 
-  public static interface IPersonWithChild {
+  public interface IPersonWithChild {
     Integer getAge();
 
     Boolean getExpired();
@@ -108,35 +112,19 @@ public class InterfaceSatisfactionTest {
   public void testAnonymousInnerContractSatisfaction(
       ReadableRepresentation representation, ReadableRepresentation nullPropertyRepresentation) {
 
-    Contract contractHasName =
-        new Contract() {
-          public boolean isSatisfiedBy(ReadableRepresentation resource) {
-            return resource.getProperties().containsKey("name");
-          }
-        };
+    Contract contractHasName = resource -> resource.getProperties().containsKey("name");
+    Contract contractHasOptional = resource -> resource.getProperties().containsKey("optional");
 
-    Contract contractHasOptional =
-        new Contract() {
-          public boolean isSatisfiedBy(ReadableRepresentation resource) {
-            return resource.getProperties().containsKey("optional");
-          }
-        };
-
+    @SuppressWarnings("NullAway")
     Contract contractHasOptionalFalse =
-        new Contract() {
-          public boolean isSatisfiedBy(ReadableRepresentation resource) {
-            return resource.getProperties().containsKey("optional")
+        resource ->
+            resource.getProperties().containsKey("optional")
                 && resource.getProperties().get("optional").equals("false");
-          }
-        };
 
     Contract contractHasNullProperty =
-        new Contract() {
-          public boolean isSatisfiedBy(ReadableRepresentation resource) {
-            return resource.getProperties().containsKey("nullprop")
+        resource ->
+            resource.getProperties().containsKey("nullprop")
                 && resource.getProperties().get("nullprop") == null;
-          }
-        };
 
     assertThat(representation.isSatisfiedBy(contractHasName)).isEqualTo(true);
     assertThat(representation.isSatisfiedBy(contractHasOptional)).isEqualTo(true);

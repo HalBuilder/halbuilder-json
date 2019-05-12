@@ -9,7 +9,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
@@ -166,8 +165,9 @@ public class ResourceReaderTest {
   }
 
   @Test(expectedExceptions = RepresentationException.class)
+  @SuppressWarnings("NullAway")
   public void testNullReader() {
-    representationFactory.readRepresentation(HAL_JSON, (Reader) null);
+    representationFactory.readRepresentation(HAL_JSON, null);
   }
 
   @Test
@@ -219,21 +219,21 @@ public class ResourceReaderTest {
     assertThat(idx(childList2, 0).age()).isEqualTo(12);
   }
 
-  public static interface Family {
-    public Map child();
+  public interface Family {
+    Map child();
 
-    public List<Map> children();
+    List<Map> children();
   }
 
-  public static interface Family2 {
-    public Child child();
+  public interface Family2 {
+    Child child();
 
-    public List<Child> children();
+    List<Child> children();
   }
 
-  public static interface Child {
-    public Integer age();
+  public interface Child {
+    Integer age();
 
-    public Integer name();
+    Integer name();
   }
 }

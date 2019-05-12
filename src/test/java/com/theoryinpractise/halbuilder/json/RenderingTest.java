@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
-import com.theoryinpractise.halbuilder.api.Representable;
 import com.theoryinpractise.halbuilder.api.Representation;
 import com.theoryinpractise.halbuilder.api.RepresentationException;
 import com.theoryinpractise.halbuilder.api.RepresentationFactory;
@@ -181,16 +180,13 @@ public class RenderingTest {
         newBaseResource(href)
             .withLink("ns:users", BASE_URL + href + "?users")
             .withRepresentable(
-                new Representable() {
-                  public void representResource(Representation resource) {
+                resource ->
                     resource
                         .withProperty("id", 123456)
                         .withProperty("age", 33)
                         .withProperty("name", "Example Resource")
                         .withProperty("optional", Boolean.TRUE)
-                        .withProperty("expired", Boolean.FALSE);
-                  }
-                });
+                        .withProperty("expired", Boolean.FALSE));
 
     assertThat(
             party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))

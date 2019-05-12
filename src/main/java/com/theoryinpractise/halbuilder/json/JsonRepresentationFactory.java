@@ -5,19 +5,19 @@ import com.theoryinpractise.halbuilder.DefaultRepresentationFactory;
 import com.theoryinpractise.halbuilder.api.ContentRepresentation;
 import com.theoryinpractise.halbuilder.api.RepresentationWriter;
 import com.theoryinpractise.halbuilder.impl.ContentType;
-
 import java.io.Reader;
+import javax.annotation.Nullable;
 
 /** Simple representation factory configured for JSON usage. */
 public class JsonRepresentationFactory extends DefaultRepresentationFactory {
 
-  private ObjectMapper mapper;
+  @Nullable private ObjectMapper mapper;
 
   public JsonRepresentationFactory() {
     this(null);
   }
 
-  public JsonRepresentationFactory(ObjectMapper mapper) {
+  public JsonRepresentationFactory(@Nullable ObjectMapper mapper) {
     withRenderer(HAL_JSON, JsonRepresentationWriter.class);
     withReader(HAL_JSON, JsonRepresentationReader.class);
     this.mapper = mapper;

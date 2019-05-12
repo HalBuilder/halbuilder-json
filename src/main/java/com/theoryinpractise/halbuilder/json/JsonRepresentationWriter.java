@@ -1,19 +1,30 @@
 package com.theoryinpractise.halbuilder.json;
 
+import static com.theoryinpractise.halbuilder.impl.api.Support.CURIES;
+import static com.theoryinpractise.halbuilder.impl.api.Support.EMBEDDED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREF;
+import static com.theoryinpractise.halbuilder.impl.api.Support.HREFLANG;
+import static com.theoryinpractise.halbuilder.impl.api.Support.LINKS;
+import static com.theoryinpractise.halbuilder.impl.api.Support.NAME;
+import static com.theoryinpractise.halbuilder.impl.api.Support.PROFILE;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TEMPLATED;
+import static com.theoryinpractise.halbuilder.impl.api.Support.TITLE;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.theoryinpractise.halbuilder.api.*;
-
-import javax.annotation.Nullable;
+import com.theoryinpractise.halbuilder.api.Link;
+import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
+import com.theoryinpractise.halbuilder.api.RepresentationException;
+import com.theoryinpractise.halbuilder.api.RepresentationFactory;
+import com.theoryinpractise.halbuilder.api.RepresentationWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
@@ -21,8 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.theoryinpractise.halbuilder.impl.api.Support.*;
 
 public class JsonRepresentationWriter implements RepresentationWriter<String> {
 
@@ -36,6 +45,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
     this.mapper = mapper;
   }
 
+  @Override
   public void write(ReadableRepresentation representation, Set<URI> flags, Writer writer) {
 
     try {
@@ -82,7 +92,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
       // Include namespaces as links when not embedded
       if (!embedded) {
         for (Map.Entry<String, String> entry : representation.getNamespaces().entrySet()) {
-          links.add(new Link(null, CURIES, entry.getValue(), entry.getKey(), null, null, null));
+          links.add(new Link(CURIES, entry.getValue(), entry.getKey(), "", "", ""));
         }
       }
 
@@ -90,14 +100,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
       links.addAll(representation.getLinks());
 
       // Partition representation links by rel
-      Multimap<String, Link> linkMap =
-          Multimaps.index(
-              links,
-              new Function<Link, String>() {
-                public String apply(@Nullable Link link) {
-                  return link.getRel();
-                }
-              });
+      Multimap<String, Link> linkMap = Multimaps.index(links, link -> link.getRel());
 
       for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
         if (linkEntry.getValue().size() == 1

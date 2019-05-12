@@ -44,6 +44,7 @@ public class JsonRepresentationReader implements RepresentationReader {
     this.mapper = mapper;
   }
 
+  @Override
   public ContentRepresentation read(Reader reader) {
     try {
       String source = CharStreams.toString(reader);
@@ -92,7 +93,7 @@ public class JsonRepresentationReader implements RepresentationReader {
       Iterator<Map.Entry<String, JsonNode>> fields = rootNode.get(LINKS).fields();
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> keyNode = fields.next();
-        if (!CURIES.equals((keyNode.getKey()))) {
+        if (!CURIES.equals(keyNode.getKey())) {
           if (keyNode.getValue().isArray()) {
             Iterator<JsonNode> values = keyNode.getValue().elements();
             while (values.hasNext()) {
@@ -121,7 +122,7 @@ public class JsonRepresentationReader implements RepresentationReader {
 
   String optionalNodeValueAsText(JsonNode node, String key) {
     JsonNode value = node.get(key);
-    return value != null ? value.asText() : null;
+    return value != null ? value.asText() : "";
   }
 
   private void readProperties(MutableRepresentation resource, JsonNode rootNode)
