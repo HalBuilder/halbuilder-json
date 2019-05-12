@@ -3,7 +3,7 @@
 
     <groupId>com.theoryinpractise</groupId>
     <artifactId>halbuilder-json</artifactId>
-    <version>4.0.7-SNAPSHOT</version>
+    <version>4.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>halbuilder-json</name>
@@ -125,12 +125,12 @@
         <dependency>
             <groupId>com.theoryinpractise</groupId>
             <artifactId>halbuilder-api</artifactId>
-            <version>[4.0.0,5.0.0)</version>
+            <version>4.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.theoryinpractise</groupId>
             <artifactId>halbuilder-core</artifactId>
-            <version>[4.0.0,5.0.0)</version>
+            <version>4.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
