@@ -48,7 +48,7 @@ public class InterfaceSatisfactionTest {
   }
 
   public static interface INothing {
-      Map<String, Collection<ReadableRepresentation>> getEmbedded();
+    Map<String, Collection<ReadableRepresentation>> getEmbedded();
   }
 
   public static interface IPersonWithChild {
@@ -68,57 +68,75 @@ public class InterfaceSatisfactionTest {
   @DataProvider
   public Object[][] providerSatisfactionData() {
     return new Object[][] {
-        {IPerson.class, true},
-        {INamed.class, true},
-        {IJob.class, false},
-        {ISimpleJob.class, false},
+      {IPerson.class, true},
+      {INamed.class, true},
+      {IJob.class, false},
+      {ISimpleJob.class, false},
     };
   }
 
   @DataProvider
   public Object[][] provideSatisfactionResources() {
     return new Object[][] {
-        {
-            representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json"))),
-            representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNullProperty.json")))
-        }
+      {
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream("/example.json"))),
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream(
+                    "/exampleWithNullProperty.json")))
+      }
     };
   }
 
   @Test(dataProvider = "providerSatisfactionData")
   public void testSimpleInterfaceSatisfaction(Class<?> aClass, boolean shouldBeSatisfied) {
 
-    ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
-    assertThat(representation.isSatisfiedBy(InterfaceContract.newInterfaceContract(aClass))).isEqualTo(shouldBeSatisfied);
-
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
+    assertThat(representation.isSatisfiedBy(InterfaceContract.newInterfaceContract(aClass)))
+        .isEqualTo(shouldBeSatisfied);
   }
 
   @Test(dataProvider = "provideSatisfactionResources")
-  public void testAnonymousInnerContractSatisfaction(ReadableRepresentation representation, ReadableRepresentation nullPropertyRepresentation) {
+  public void testAnonymousInnerContractSatisfaction(
+      ReadableRepresentation representation, ReadableRepresentation nullPropertyRepresentation) {
 
-    Contract contractHasName = new Contract() {
-      public boolean isSatisfiedBy(ReadableRepresentation resource) {
-        return resource.getProperties().containsKey("name");
-      }
-    };
+    Contract contractHasName =
+        new Contract() {
+          public boolean isSatisfiedBy(ReadableRepresentation resource) {
+            return resource.getProperties().containsKey("name");
+          }
+        };
 
-    Contract contractHasOptional = new Contract() {
-      public boolean isSatisfiedBy(ReadableRepresentation resource) {
-        return resource.getProperties().containsKey("optional");
-      }
-    };
+    Contract contractHasOptional =
+        new Contract() {
+          public boolean isSatisfiedBy(ReadableRepresentation resource) {
+            return resource.getProperties().containsKey("optional");
+          }
+        };
 
-    Contract contractHasOptionalFalse = new Contract() {
-      public boolean isSatisfiedBy(ReadableRepresentation resource) {
-        return resource.getProperties().containsKey("optional") && resource.getProperties().get("optional").equals("false");
-      }
-    };
+    Contract contractHasOptionalFalse =
+        new Contract() {
+          public boolean isSatisfiedBy(ReadableRepresentation resource) {
+            return resource.getProperties().containsKey("optional")
+                && resource.getProperties().get("optional").equals("false");
+          }
+        };
 
-    Contract contractHasNullProperty = new Contract() {
-      public boolean isSatisfiedBy(ReadableRepresentation resource) {
-        return resource.getProperties().containsKey("nullprop") && resource.getProperties().get("nullprop") == null;
-      }
-    };
+    Contract contractHasNullProperty =
+        new Contract() {
+          public boolean isSatisfiedBy(ReadableRepresentation resource) {
+            return resource.getProperties().containsKey("nullprop")
+                && resource.getProperties().get("nullprop") == null;
+          }
+        };
 
     assertThat(representation.isSatisfiedBy(contractHasName)).isEqualTo(true);
     assertThat(representation.isSatisfiedBy(contractHasOptional)).isEqualTo(true);
@@ -130,7 +148,11 @@ public class InterfaceSatisfactionTest {
 
   @Test
   public void testClassRendering() {
-    ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
 
     assertThat(representation.toClass(INamed.class).name()).isEqualTo("Example Resource");
     assertThat(representation.toClass(IPerson.class).getName()).isEqualTo("Example Resource");
@@ -146,12 +168,16 @@ public class InterfaceSatisfactionTest {
     } catch (RepresentationException e) {
       //
     }
-
   }
 
   @Test
   public void testNullPropertyClassRendering() {
-    ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNullProperty.json")));
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream(
+                    "/exampleWithNullProperty.json")));
 
     assertThat(representation.toClass(INullprop.class)).isNotNull();
     assertThat(representation.toClass(INullprop.class).nullprop() == null);
@@ -159,21 +185,35 @@ public class InterfaceSatisfactionTest {
 
   @Test
   public void testGetLinks() {
-      ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
-      IPerson person = representation.toClass(IPerson.class);
-      assertThat(person.getLinks()).isNotEmpty();
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream("/example.json")));
+    IPerson person = representation.toClass(IPerson.class);
+    assertThat(person.getLinks()).isNotEmpty();
   }
 
   @Test
   public void testGetEmbedded() {
-      ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithSubresource.json")));
-      INothing person = representation.toClass(INothing.class);
-      assertThat(person.getEmbedded()).isNotEmpty();
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream(
+                    "/exampleWithSubresource.json")));
+    INothing person = representation.toClass(INothing.class);
+    assertThat(person.getEmbedded()).isNotEmpty();
   }
 
   @Test
   public void testNestedObjectGraph() {
-    ReadableRepresentation representation = representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNestedObjects.json")));
+    ReadableRepresentation representation =
+        representationFactory.readRepresentation(
+            HAL_JSON,
+            new InputStreamReader(
+                InterfaceSatisfactionTest.class.getResourceAsStream(
+                    "/exampleWithNestedObjects.json")));
     IPersonWithChild person = representation.toClass(IPersonWithChild.class);
     assertThat(person.getChildren()).isNotEmpty();
     assertThat(person.getChildren().get(0)).isNotNull();

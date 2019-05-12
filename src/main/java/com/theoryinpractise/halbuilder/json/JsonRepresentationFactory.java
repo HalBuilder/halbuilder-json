@@ -8,11 +8,8 @@ import com.theoryinpractise.halbuilder.impl.ContentType;
 
 import java.io.Reader;
 
-/**
- * Simple representation factory configured for JSON usage.
- */
-public class JsonRepresentationFactory
-    extends DefaultRepresentationFactory {
+/** Simple representation factory configured for JSON usage. */
+public class JsonRepresentationFactory extends DefaultRepresentationFactory {
 
   private ObjectMapper mapper;
 
