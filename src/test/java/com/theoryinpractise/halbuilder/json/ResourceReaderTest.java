@@ -27,11 +27,7 @@ public class ResourceReaderTest {
   @DataProvider
   public Object[][] provideResources() {
     return new Object[][] {
-      {
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))
-      },
+      {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")))},
     };
   }
 
@@ -39,10 +35,7 @@ public class ResourceReaderTest {
   public Object[][] provideResourcesWithNulls() {
     return new Object[][] {
       {
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))
+        representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNullProperty.json")))
       },
     };
   }
@@ -50,24 +43,14 @@ public class ResourceReaderTest {
   @DataProvider
   public Object[][] provideSubResources() {
     return new Object[][] {
-      {
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))
-      },
+      {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithSubresource.json")))},
     };
   }
 
   @DataProvider
   public Object[][] provideResourcesWithouHref() {
     return new Object[][] {
-      {
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))
-      },
+      {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithoutHref.json")))},
     };
   }
 
@@ -76,10 +59,7 @@ public class ResourceReaderTest {
     return new Object[][] {
       {
         representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream(
-                    "/exampleWithUnderscoredProperty.json")))
+            HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithUnderscoredProperty.json")))
       },
     };
   }
@@ -87,19 +67,13 @@ public class ResourceReaderTest {
   @DataProvider
   public Object[][] provideResourceWithSimpleArrays() {
     return new Object[][] {
-      {
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream("/exampleWithArray.json")))
-      },
+      {representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithArray.json")))},
     };
   }
 
   @Test(dataProvider = "provideResources")
   public void testReader(ReadableRepresentation representation) {
-    assertThat(representation.getResourceLink().getHref())
-        .isEqualTo("https://example.com/api/customer/123456");
+    assertThat(representation.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
     assertThat(representation.getNamespaces()).hasSize(2);
     assertThat(representation.getProperties().get("name")).isEqualTo("Example Resource");
     assertThat(representation.getValue("name")).isEqualTo("Example Resource");
@@ -135,14 +109,11 @@ public class ResourceReaderTest {
 
   @Test(dataProvider = "provideSubResources")
   public void testSubReader(ReadableRepresentation representation) {
-    assertThat(representation.getResourceLink().getHref())
-        .isEqualTo("https://example.com/api/customer/123456");
+    assertThat(representation.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
     assertThat(representation.getNamespaces()).hasSize(2);
     assertThat(representation.getCanonicalLinks()).hasSize(3);
     assertThat(representation.getResources()).hasSize(1);
-    assertThat(
-            representation.getResources().iterator().next().getValue().getProperties().get("name"))
-        .isEqualTo("Example User");
+    assertThat(representation.getResources().iterator().next().getValue().getProperties().get("name")).isEqualTo("Example User");
     assertThat(representation.getResourcesByRel("ns:user")).hasSize(1);
   }
 
@@ -174,26 +145,19 @@ public class ResourceReaderTest {
   public void testContentExtraction() {
 
     ContentRepresentation rep =
-        representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")));
+        representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")));
     assertThat(rep.getContent()).isNotEmpty();
     assertThat(idxStr(fromJson(rep.getContent(), Map.class), "name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("name"))
-        .isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/name"))
-        .isEqualTo("ns");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/href"))
-        .isEqualTo("https://example.com/apidocs/ns/{rel}");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("name")).isEqualTo("Example Resource");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/name")).isEqualTo("ns");
+    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/href")).isEqualTo("https://example.com/apidocs/ns/{rel}");
   }
 
   @Test
   public void testNestedObject() {
     ContentRepresentation rep =
         representationFactory.readRepresentation(
-            HAL_JSON,
-            new InputStreamReader(
-                ResourceReaderTest.class.getResourceAsStream("/exampleWithNestedObjects.json")));
+            HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/exampleWithNestedObjects.json")));
 
     Map map = (Map) rep.getValue("child");
     assertThat(map).isNotNull();

@@ -48,62 +48,24 @@ public class RenderingTest {
 
   @BeforeMethod
   public void setup() throws IOException {
-    exampleJsonWithoutHref =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithoutHref.json"), Charsets.UTF_8)
-            .trim();
-    exampleJson =
-        Resources.toString(RenderingTest.class.getResource("/example.json"), Charsets.UTF_8).trim();
-    exampleSingleElemArrayLinksJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleSingleElemArrayLinks.json"),
-                Charsets.UTF_8)
-            .trim();
-    exampleWithSubresourceJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithSubresource.json"), Charsets.UTF_8)
-            .trim();
+    exampleJsonWithoutHref = Resources.toString(RenderingTest.class.getResource("/exampleWithoutHref.json"), Charsets.UTF_8).trim();
+    exampleJson = Resources.toString(RenderingTest.class.getResource("/example.json"), Charsets.UTF_8).trim();
+    exampleSingleElemArrayLinksJson = Resources.toString(RenderingTest.class.getResource("/exampleSingleElemArrayLinks.json"), Charsets.UTF_8).trim();
+    exampleWithSubresourceJson = Resources.toString(RenderingTest.class.getResource("/exampleWithSubresource.json"), Charsets.UTF_8).trim();
     exampleWithSubresourceLinkingToItselfJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithSubresourceLinkingToItself.json"),
-                Charsets.UTF_8)
-            .trim();
-    exampleWithMultipleSubresourcesJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithMultipleSubresources.json"),
-                Charsets.UTF_8)
-            .trim();
-    exampleWithNullPropertyJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithNullProperty.json"), Charsets.UTF_8)
-            .trim();
-    exampleWithLiteralNullPropertyJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithLiteralNullProperty.json"),
-                Charsets.UTF_8)
-            .trim();
+        Resources.toString(RenderingTest.class.getResource("/exampleWithSubresourceLinkingToItself.json"), Charsets.UTF_8).trim();
+    exampleWithMultipleSubresourcesJson = Resources.toString(RenderingTest.class.getResource("/exampleWithMultipleSubresources.json"), Charsets.UTF_8).trim();
+    exampleWithNullPropertyJson = Resources.toString(RenderingTest.class.getResource("/exampleWithNullProperty.json"), Charsets.UTF_8).trim();
+    exampleWithLiteralNullPropertyJson = Resources.toString(RenderingTest.class.getResource("/exampleWithLiteralNullProperty.json"), Charsets.UTF_8).trim();
     exampleWithMultipleNestedSubresourcesJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithMultipleNestedSubresources.json"),
-                Charsets.UTF_8)
-            .trim();
-    exampleWithTemplateJson =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithTemplate.json"), Charsets.UTF_8)
-            .trim();
-    exampleWithArray =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithArray.json"), Charsets.UTF_8)
-            .trim();
-    exampleWithSingleElemArray =
-        Resources.toString(
-                RenderingTest.class.getResource("/exampleWithSingleElemArray.json"), Charsets.UTF_8)
-            .trim();
+        Resources.toString(RenderingTest.class.getResource("/exampleWithMultipleNestedSubresources.json"), Charsets.UTF_8).trim();
+    exampleWithTemplateJson = Resources.toString(RenderingTest.class.getResource("/exampleWithTemplate.json"), Charsets.UTF_8).trim();
+    exampleWithArray = Resources.toString(RenderingTest.class.getResource("/exampleWithArray.json"), Charsets.UTF_8).trim();
+    exampleWithSingleElemArray = Resources.toString(RenderingTest.class.getResource("/exampleWithSingleElemArray.json"), Charsets.UTF_8).trim();
   }
 
   private Representation newBaseResource(final Representation resource) {
-    return resource.withLink(
-        "ns:parent", BASE_URL + "customer/1234", "bob", "The Parent", "en", "");
+    return resource.withLink("ns:parent", BASE_URL + "customer/1234", "bob", "The Parent", "en", "");
   }
 
   private Representation newBaseResource(final URI uri) {
@@ -118,38 +80,27 @@ public class RenderingTest {
   @Test
   public void testFactoryWithLinks() {
 
-    RepresentationFactory representationFactory =
-        new JsonRepresentationFactory().withLink("home", "https://example.com/home");
+    RepresentationFactory representationFactory = new JsonRepresentationFactory().withLink("home", "https://example.com/home");
 
     Representation resource = representationFactory.newRepresentation("/");
 
     assertThat(resource.getCanonicalLinks()).hasSize(2);
     assertThat(resource.getLinksByRel("home")).hasSize(1);
-    assertThat(resource.getLinksByRel("home").iterator().next().toString())
-        .isEqualTo("<link rel=\"home\" href=\"https://example.com/home\"/>");
+    assertThat(resource.getLinksByRel("home").iterator().next().toString()).isEqualTo("<link rel=\"home\" href=\"https://example.com/home\"/>");
   }
 
   @Test(expectedExceptions = RepresentationException.class)
   public void testFactoryWithDuplicateNamespaces() {
-    new JsonRepresentationFactory()
-        .withNamespace("home", "https://example.com/api/")
-        .withNamespace("home", "https://example.com/api/");
+    new JsonRepresentationFactory().withNamespace("home", "https://example.com/api/").withNamespace("home", "https://example.com/api/");
   }
 
   @Test
   public void testResourcesWithoutHref() {
 
-    ReadableRepresentation party =
-        new JsonRepresentationFactory()
-            .newRepresentation()
-            .withProperty("name", "Example Resource");
+    ReadableRepresentation party = new JsonRepresentationFactory().newRepresentation().withProperty("name", "Example Resource");
 
     assertThat(party.getResourceLink()).isNull();
-    assertThat(
-            party.toString(
-                RepresentationFactory.HAL_JSON,
-                ImmutableSet.of(RepresentationFactory.PRETTY_PRINT)))
-        .isEqualTo(exampleJsonWithoutHref);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, ImmutableSet.of(RepresentationFactory.PRETTY_PRINT))).isEqualTo(exampleJsonWithoutHref);
   }
 
   @Test
@@ -165,11 +116,8 @@ public class RenderingTest {
             .withProperty("optional", Boolean.TRUE)
             .withProperty("expired", Boolean.FALSE);
 
-    assertThat(party.getResourceLink().getHref())
-        .isEqualTo("https://example.com/api/customer/123456");
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleJson);
+    assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleJson);
   }
 
   @Test
@@ -188,9 +136,7 @@ public class RenderingTest {
                         .withProperty("optional", Boolean.TRUE)
                         .withProperty("expired", Boolean.FALSE));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleJson);
   }
 
   @Test
@@ -198,13 +144,9 @@ public class RenderingTest {
 
     String href = "customer/123456";
     ReadableRepresentation party =
-        newBaseResource(href)
-            .withLink("ns:users", BASE_URL + href + "?users")
-            .withBean(new Customer(123456, "Example Resource", 33));
+        newBaseResource(href).withLink("ns:users", BASE_URL + href + "?users").withBean(new Customer(123456, "Example Resource", 33));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleJson);
   }
 
   @Test
@@ -212,13 +154,9 @@ public class RenderingTest {
 
     String href = "customer/123456";
     ReadableRepresentation party =
-        newBaseResource(href)
-            .withLink("ns:users", BASE_URL + href + "?users")
-            .withFields(new OtherCustomer(123456, "Example Resource", 33));
+        newBaseResource(href).withLink("ns:users", BASE_URL + href + "?users").withFields(new OtherCustomer(123456, "Example Resource", 33));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleJson);
   }
 
   @Test
@@ -238,9 +176,7 @@ public class RenderingTest {
                     .withProperty("age", 32)
                     .withProperty("optional", true));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithSubresourceJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithSubresourceJson);
   }
 
   @Test
@@ -261,9 +197,7 @@ public class RenderingTest {
                     .withProperty("age", 32)
                     .withProperty("optional", true));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithSubresourceLinkingToItselfJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithSubresourceLinkingToItselfJson);
   }
 
   @Test
@@ -273,14 +207,9 @@ public class RenderingTest {
     ReadableRepresentation party =
         newBaseResource(href)
             .withLink("ns:users", BASE_URL + href + "?users")
-            .withBeanBasedRepresentation(
-                "ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32));
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32));
 
-    assertThat(
-            party.toString(
-                RepresentationFactory.HAL_JSON,
-                ImmutableSet.of(RepresentationFactory.COALESCE_ARRAYS)))
-        .isEqualTo(exampleWithSubresourceJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, ImmutableSet.of(RepresentationFactory.COALESCE_ARRAYS))).isEqualTo(exampleWithSubresourceJson);
   }
 
   @Test
@@ -290,41 +219,28 @@ public class RenderingTest {
     ReadableRepresentation party =
         newBaseResource(href)
             .withLink("ns:users", BASE_URL + href + "?users")
-            .withBeanBasedRepresentation(
-                "ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
-            .withBeanBasedRepresentation(
-                "ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithMultipleSubresourcesJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithMultipleSubresourcesJson);
   }
 
   @Test
-  public void testLinkWithDamnHandyUriTemplate()
-      throws MalformedUriTemplateException, VariableExpansionException {
+  public void testLinkWithDamnHandyUriTemplate() throws MalformedUriTemplateException, VariableExpansionException {
 
     Phone phone = new Phone(1234, "phone-123");
 
-    String uri =
-        UriTemplate.fromTemplate(ROOT_URL + "/customer/phone{?id,number}")
-            .set("id", phone.getId())
-            .set("number", phone.getNumber())
-            .expand();
+    String uri = UriTemplate.fromTemplate(ROOT_URL + "/customer/phone{?id,number}").set("id", phone.getId()).set("number", phone.getNumber()).expand();
 
     ReadableRepresentation representation = newBaseResource("/test").withLink("phone", uri);
 
-    assertThat(representation.getLinkByRel("phone").getHref())
-        .isEqualTo("https://example.com/customer/phone?id=1234&number=phone-123");
+    assertThat(representation.getLinkByRel("phone").getHref()).isEqualTo("https://example.com/customer/phone?id=1234&number=phone-123");
   }
 
   @Test
-  public void testNullPropertyHal()
-      throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
+  public void testNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
 
-    String path =
-        UriTemplate.fromTemplate(BASE_URL + "customer/{id}")
-            .expand(ImmutableMap.<String, Object>of("id", "123456"));
+    String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
     ReadableRepresentation party =
         newBaseResource(new URI(path))
@@ -336,19 +252,13 @@ public class RenderingTest {
             .withProperty("expired", Boolean.FALSE)
             .withProperty("nullprop", null);
 
-    assertThat(party.getResourceLink().getHref())
-        .isEqualTo("https://example.com/api/customer/123456");
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithNullPropertyJson);
+    assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithNullPropertyJson);
   }
 
   @Test
-  public void testLiteralNullPropertyHal()
-      throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
-    String path =
-        UriTemplate.fromTemplate(BASE_URL + "customer/{id}")
-            .expand(ImmutableMap.<String, Object>of("id", "123456"));
+  public void testLiteralNullPropertyHal() throws URISyntaxException, MalformedUriTemplateException, VariableExpansionException {
+    String path = UriTemplate.fromTemplate(BASE_URL + "customer/{id}").expand(ImmutableMap.<String, Object>of("id", "123456"));
 
     ReadableRepresentation party =
         newBaseResource(new URI(path))
@@ -360,22 +270,15 @@ public class RenderingTest {
             .withProperty("expired", Boolean.FALSE)
             .withProperty("nullval", "null");
 
-    assertThat(party.getResourceLink().getHref())
-        .isEqualTo("https://example.com/api/customer/123456");
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithLiteralNullPropertyJson);
+    assertThat(party.getResourceLink().getHref()).isEqualTo("https://example.com/api/customer/123456");
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithLiteralNullPropertyJson);
   }
 
   @Test
   public void testHalWithUriTemplate() {
-    ReadableRepresentation party =
-        newBaseResource("customer")
-            .withLink("ns:query", ROOT_URL + "/api/customer/search{?queryParam}");
+    ReadableRepresentation party = newBaseResource("customer").withLink("ns:query", ROOT_URL + "/api/customer/search{?queryParam}");
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithTemplateJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithTemplateJson);
   }
 
   @Test
@@ -386,19 +289,13 @@ public class RenderingTest {
         newBaseResource(href)
             .withNamespace("phone", "https://example.com/apidocs/phone/{rel}")
             .withLink("ns:users", BASE_URL + href + "?users")
-            .withBeanBasedRepresentation(
-                "ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
-            .withBeanBasedRepresentation(
-                "ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/11", new Customer(11, "Example User", 32))
+            .withBeanBasedRepresentation("ns:user", ROOT_URL + "/user/12", new Customer(12, "Example User", 32));
 
-    MutableRepresentation mutableRepresentation =
-        (MutableRepresentation) Iterables.getFirst(party.getResources(), null).getValue();
-    mutableRepresentation.withBeanBasedRepresentation(
-        "phone:cell", ROOT_URL + "/phone/1", new Phone(1, "555-666-7890"));
+    MutableRepresentation mutableRepresentation = (MutableRepresentation) Iterables.getFirst(party.getResources(), null).getValue();
+    mutableRepresentation.withBeanBasedRepresentation("phone:cell", ROOT_URL + "/phone/1", new Phone(1, "555-666-7890"));
 
-    assertThat(
-            party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS))
-        .isEqualTo(exampleWithMultipleNestedSubresourcesJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON, RepresentationFactory.COALESCE_ARRAYS)).isEqualTo(exampleWithMultipleNestedSubresourcesJson);
   }
 
   @Test
@@ -417,10 +314,7 @@ public class RenderingTest {
 
   @Test
   public void testHalWithSingleElemArrayLinks() {
-    RepresentationFactory rf =
-        new JsonRepresentationFactory()
-            .withNamespace("ns", ROOT_URL + "/apidocs/ns/{rel}")
-            .withFlag(RepresentationFactory.PRETTY_PRINT);
+    RepresentationFactory rf = new JsonRepresentationFactory().withNamespace("ns", ROOT_URL + "/apidocs/ns/{rel}").withFlag(RepresentationFactory.PRETTY_PRINT);
 
     String href = "customer/123456";
     ReadableRepresentation party =
@@ -428,8 +322,7 @@ public class RenderingTest {
             .withLink("ns:users", BASE_URL + href + "?users")
             .withBean(new Customer(123456, "Example Resource", 33));
 
-    assertThat(party.toString(RepresentationFactory.HAL_JSON))
-        .isEqualTo(exampleSingleElemArrayLinksJson);
+    assertThat(party.toString(RepresentationFactory.HAL_JSON)).isEqualTo(exampleSingleElemArrayLinksJson);
   }
 
   @Test

@@ -79,12 +79,9 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
     return f;
   }
 
-  private void renderJson(
-      Set<URI> flags, JsonGenerator g, ReadableRepresentation representation, boolean embedded)
-      throws IOException {
+  private void renderJson(Set<URI> flags, JsonGenerator g, ReadableRepresentation representation, boolean embedded) throws IOException {
 
-    if (!representation.getCanonicalLinks().isEmpty()
-        || (!embedded && !representation.getNamespaces().isEmpty())) {
+    if (!representation.getCanonicalLinks().isEmpty() || (!embedded && !representation.getNamespaces().isEmpty())) {
       g.writeObjectFieldStart(LINKS);
 
       List<Link> links = Lists.newArrayList();
@@ -103,9 +100,7 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
       Multimap<String, Link> linkMap = Multimaps.index(links, link -> link.getRel());
 
       for (Map.Entry<String, Collection<Link>> linkEntry : linkMap.asMap().entrySet()) {
-        if (linkEntry.getValue().size() == 1
-                && flags.contains(RepresentationFactory.COALESCE_ARRAYS)
-            || linkEntry.getKey().equals("self")) {
+        if (linkEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS) || linkEntry.getKey().equals("self")) {
           Link link = linkEntry.getValue().iterator().next();
           g.writeObjectFieldStart(linkEntry.getKey());
           writeJsonLinkContent(g, link);
@@ -138,10 +133,8 @@ public class JsonRepresentationWriter implements RepresentationWriter<String> {
 
       Map<String, Collection<ReadableRepresentation>> resourceMap = representation.getResourceMap();
 
-      for (Map.Entry<String, Collection<ReadableRepresentation>> resourceEntry :
-          resourceMap.entrySet()) {
-        if (resourceEntry.getValue().size() == 1
-            && flags.contains(RepresentationFactory.COALESCE_ARRAYS)) {
+      for (Map.Entry<String, Collection<ReadableRepresentation>> resourceEntry : resourceMap.entrySet()) {
+        if (resourceEntry.getValue().size() == 1 && flags.contains(RepresentationFactory.COALESCE_ARRAYS)) {
           g.writeObjectFieldStart(resourceEntry.getKey());
           ReadableRepresentation subRepresentation = resourceEntry.getValue().iterator().next();
           renderJson(flags, g, subRepresentation, true);

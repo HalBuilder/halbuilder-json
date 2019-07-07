@@ -38,8 +38,7 @@ public class JsonRepresentationReader implements RepresentationReader {
     this(representationFactory, new ObjectMapper());
   }
 
-  public JsonRepresentationReader(
-      AbstractRepresentationFactory representationFactory, ObjectMapper mapper) {
+  public JsonRepresentationReader(AbstractRepresentationFactory representationFactory, ObjectMapper mapper) {
     this.representationFactory = representationFactory;
     this.mapper = mapper;
   }
@@ -59,8 +58,7 @@ public class JsonRepresentationReader implements RepresentationReader {
 
   private ContentRepresentation readResource(JsonNode rootNode) throws IOException {
 
-    ContentBasedRepresentation resource =
-        new ContentBasedRepresentation(representationFactory, rootNode.toString());
+    ContentBasedRepresentation resource = new ContentBasedRepresentation(representationFactory, rootNode.toString());
 
     readNamespaces(resource, rootNode);
     readLinks(resource, rootNode);
@@ -108,8 +106,7 @@ public class JsonRepresentationReader implements RepresentationReader {
     }
   }
 
-  private void withJsonLink(
-      MutableRepresentation resource, Map.Entry<String, JsonNode> keyNode, JsonNode valueNode) {
+  private void withJsonLink(MutableRepresentation resource, Map.Entry<String, JsonNode> keyNode, JsonNode valueNode) {
     String rel = keyNode.getKey();
     String href = valueNode.get(HREF).asText();
     String name = optionalNodeValueAsText(valueNode, NAME);
@@ -125,8 +122,7 @@ public class JsonRepresentationReader implements RepresentationReader {
     return value != null ? value.asText() : "";
   }
 
-  private void readProperties(MutableRepresentation resource, JsonNode rootNode)
-      throws IOException {
+  private void readProperties(MutableRepresentation resource, JsonNode rootNode) throws IOException {
     Iterator<String> fieldNames = rootNode.fieldNames();
     while (fieldNames.hasNext()) {
       String fieldName = fieldNames.next();
@@ -135,20 +131,13 @@ public class JsonRepresentationReader implements RepresentationReader {
         if (field.isArray()) {
           List<Object> arrayValues = new ArrayList<Object>(field.size());
           for (JsonNode arrayValue : field) {
-            arrayValues.add(
-                !arrayValue.isContainerNode()
-                    ? arrayValue.asText()
-                    : ImmutableMap.copyOf(mapper.readValue(arrayValue.toString(), Map.class)));
+            arrayValues.add(!arrayValue.isContainerNode() ? arrayValue.asText() : ImmutableMap.copyOf(mapper.readValue(arrayValue.toString(), Map.class)));
           }
           resource.withProperty(fieldName, arrayValues);
         } else {
           resource.withProperty(
               fieldName,
-              field.isNull()
-                  ? null
-                  : (!field.isContainerNode()
-                      ? field.asText()
-                      : ImmutableMap.copyOf(mapper.readValue(field.toString(), Map.class))));
+              field.isNull() ? null : (!field.isContainerNode() ? field.asText() : ImmutableMap.copyOf(mapper.readValue(field.toString(), Map.class))));
         }
       }
     }
