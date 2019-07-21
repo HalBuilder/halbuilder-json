@@ -13,12 +13,12 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
 import static org.apache.commons.jxpath.JXPathContext.newContext;
 import static org.boon.Lists.idx;
 import static org.boon.Maps.idxStr;
 import static org.boon.json.JsonFactory.fromJson;
-import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ResourceReaderTest {
 

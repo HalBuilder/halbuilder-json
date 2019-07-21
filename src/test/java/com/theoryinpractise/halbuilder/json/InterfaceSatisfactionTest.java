@@ -15,9 +15,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
+import static org.testng.Assert.fail;
 
 public class InterfaceSatisfactionTest {
 
@@ -146,7 +146,7 @@ public class InterfaceSatisfactionTest {
             HAL_JSON, new InputStreamReader(InterfaceSatisfactionTest.class.getResourceAsStream("/exampleWithNullProperty.json")));
 
     assertThat(representation.toClass(INullprop.class)).isNotNull();
-    assertThat(representation.toClass(INullprop.class).nullprop() == null);
+    assertThat(representation.toClass(INullprop.class).nullprop()).isNull();
   }
 
   @Test

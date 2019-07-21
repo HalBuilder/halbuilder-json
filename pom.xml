@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.theoryinpractise</groupId>
   <artifactId>halbuilder-json</artifactId>
   <version>4.1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
+
   <name>halbuilder-json</name>
   <description>HAL+JSON serializer/deserializer extension to the HalBuilder Library</description>
   <url>http://gotohal.net</url>
@@ -13,6 +15,7 @@
       <name>Apache License</name>
     </license>
   </licenses>
+
   <developers>
     <developer>
       <id>talios</id>
@@ -21,6 +24,7 @@
       <url>http://twitter.com/talios</url>
     </developer>
   </developers>
+
   <scm>
     <connection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</connection>
     <developerConnection>scm:git:git@github.com:HalBuilder/halbuilder-json.git</developerConnection>
@@ -39,10 +43,12 @@
       <url>https://oss.sonatype.org/content/repositories/github-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
+
   <properties>
     <project.Automatic-Module-Name>com.theoryinpractive.halbuilder.json</project.Automatic-Module-Name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -102,7 +108,7 @@
     <dependency>
       <groupId>com.theoryinpractise</groupId>
       <artifactId>halbuilder-api</artifactId>
-      <version>4.1.1-SNAPSHOT</version>
+      <version>4.1.1</version>
     </dependency>
     <dependency>
       <groupId>com.theoryinpractise</groupId>
@@ -113,6 +119,12 @@
       <groupId>com.damnhandy</groupId>
       <artifactId>handy-uri-templates</artifactId>
       <version>2.1.8</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -128,18 +140,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert-core</artifactId>
-      <version>2.0M10</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>6.14.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -177,7 +184,7 @@
             <configuration>
               <!--<attached>false</attached>-->
               <resourceBundles>
-                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.0.2</resourceBundle>
+                <resourceBundle>com.theoryinpractise:halbuilder-test-resources:4.1.1</resourceBundle>
               </resourceBundles>
             </configuration>
           </execution>
@@ -185,6 +192,7 @@
       </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>release</id>
