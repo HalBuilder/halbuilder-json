@@ -1,3 +1,7 @@
-target
 *.iml
-.idea
+*.ipr
+*.iws
+.idea/
+/pom.xml.releaseBackup
+/release.properties
+target/
