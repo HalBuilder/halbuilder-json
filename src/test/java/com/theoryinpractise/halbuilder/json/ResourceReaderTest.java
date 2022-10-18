@@ -1,5 +1,6 @@
 package com.theoryinpractise.halbuilder.json;
 
+import com.jayway.jsonpath.JsonPath;
 import com.theoryinpractise.halbuilder.api.ContentRepresentation;
 import com.theoryinpractise.halbuilder.api.Link;
 import com.theoryinpractise.halbuilder.api.ReadableRepresentation;
@@ -15,10 +16,7 @@ import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.theoryinpractise.halbuilder.api.RepresentationFactory.HAL_JSON;
-import static org.apache.commons.jxpath.JXPathContext.newContext;
 import static org.boon.Lists.idx;
-import static org.boon.Maps.idxStr;
-import static org.boon.json.JsonFactory.fromJson;
 
 public class ResourceReaderTest {
 
@@ -143,14 +141,12 @@ public class ResourceReaderTest {
 
   @Test
   public void testContentExtraction() {
-
     ContentRepresentation rep =
         representationFactory.readRepresentation(HAL_JSON, new InputStreamReader(ResourceReaderTest.class.getResourceAsStream("/example.json")));
-    assertThat(rep.getContent()).isNotEmpty();
-    assertThat(idxStr(fromJson(rep.getContent(), Map.class), "name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("name")).isEqualTo("Example Resource");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/name")).isEqualTo("ns");
-    assertThat(newContext(fromJson(rep.getContent())).getValue("_links/curies/href")).isEqualTo("https://example.com/apidocs/ns/{rel}");
+    String content = rep.getContent();
+    assertThat(JsonPath.<String>read(content, "$.name")).isEqualTo("Example Resource");
+    assertThat(JsonPath.<String>read(content, "$._links.curies[0].name")).isEqualTo("ns");
+    assertThat(JsonPath.<String>read(content, "$._links.curies[0].href")).isEqualTo("https://example.com/apidocs/ns/{rel}");
   }
 
   @Test
