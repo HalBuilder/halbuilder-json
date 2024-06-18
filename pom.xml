@@ -54,7 +54,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.16.1</version>
+      <version>2.17.1</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -65,7 +65,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.16.1</version>
+      <version>2.17.1</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -76,7 +76,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.16.1</version>
+      <version>2.17.1</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.0.0-jre</version>
+      <version>33.2.1-jre</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -125,7 +125,7 @@
     <dependency>
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
